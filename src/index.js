@@ -16,7 +16,7 @@ import { getAllAgents, getAgentsByProtocol } from './core/agents.js';
 import { detectAttacks, SENSITIVE_DATA, SECURITY_LEVELS } from './core/vulnerabilities.js';
 import { createDashboardServer } from './dashboard/server.js';
 import { initSandbox } from './sandbox/init.js';
-import { callLLM, isLLMEnabled, configureLLM, disableLLM, getLLMConfig } from './llm/provider.js';
+import { callLLM, isLLMEnabled, configureLLM, configureLLMFromEnv, disableLLM, getLLMConfig } from './llm/provider.js';
 import { renderResearchNarration } from './llm/research-narration.js';
 import { dispatch, listCommands } from './cli/router.js';
 import { planInvocation, renderRootHelp } from './cli/entry.js';
@@ -2356,6 +2356,17 @@ async function executeMcpTool(agent, toolName, args) {
 
 // Start servers
 console.log('Starting agents...\n');
+
+// Optional lab/K8s bootstrap: DVAA_LLM_PROVIDER=ollama (+ OLLAMA_BASE_URL / DVAA_LLM_MODEL)
+try {
+  const fromEnv = configureLLMFromEnv();
+  if (fromEnv?.enabled) {
+    console.log(`LLM mode from env: ${fromEnv.provider} (${fromEnv.model})${fromEnv.baseUrl ? ` @ ${fromEnv.baseUrl}` : ''}\n`);
+  }
+} catch (err) {
+  console.error(`DVAA_LLM_PROVIDER configure failed: ${err.message}`);
+  process.exit(1);
+}
 
 // The dashboard proxies to the agents on 127.0.0.1 and the bundled tools dial
 // localhost, so only bind addresses that accept 127.0.0.1 are supported.

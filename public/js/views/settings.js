@@ -18,8 +18,8 @@ const PRIVACY_FACTS = [
     + 'or run dvaa telemetry off, which saves the choice in ~/.config/opena2a/telemetry.json. '
     + 'The server reads this setting when it starts. dvaa telemetry status shows the current state.',
   'LLM mode: your API key goes from this page to the local DVAA server, which keeps it in memory only and uses it '
-    + 'to call the provider you chose (OpenAI or Anthropic). It is not written to disk and the API never returns it. '
-    + 'Disable, or restarting the server, removes it.',
+    + 'to call the provider you chose (OpenAI, Anthropic, or Ollama). It is not written to disk and the API never returns it. '
+    + 'Disable, or restarting the server, removes it. Ollama needs no real key — use any placeholder or leave blank.',
   'While LLM mode is on, agent conversations (your messages and the agent system prompts) and tutor requests '
     + 'are sent to that provider.',
   'ResearchBot, FlightBot and their AIM variants can fetch an http(s) URL from your message, directly from the DVAA server.',
@@ -36,24 +36,38 @@ export function renderSettings(state) {
   const llmSection = el('div', { className: 'settings-section' });
   llmSection.appendChild(el('h3', { className: 'settings-title' }, 'LLM Configuration'));
   llmSection.appendChild(el('p', { className: 'settings-desc' },
-    'Provide your own API key to enable intelligent mode. Agents will use real LLM responses with vulnerable system prompts, and an AI tutor will guide your attacks in real-time. Your key is held in memory by the local DVAA server and sent only to your chosen LLM provider.'));
+    'Enable intelligent mode with OpenAI, Anthropic, or a free local Ollama model. Agents use real LLM responses with vulnerable system prompts, and an AI tutor guides attacks. Keys stay in memory on the local DVAA server.'));
 
   // Provider select
   const providerRow = el('div', { className: 'settings-row' });
   providerRow.appendChild(el('label', {}, 'Provider'));
   const providerSelect = el('select', { className: 'settings-input', id: 'llm-provider' });
+  providerSelect.appendChild(el('option', { value: 'ollama' }, 'Ollama (local / free)'));
   providerSelect.appendChild(el('option', { value: 'openai' }, 'OpenAI'));
   providerSelect.appendChild(el('option', { value: 'anthropic' }, 'Anthropic'));
   providerRow.appendChild(providerSelect);
   llmSection.appendChild(providerRow);
 
+  // Ollama base URL
+  const baseRow = el('div', { className: 'settings-row', id: 'llm-base-row' });
+  baseRow.appendChild(el('label', {}, 'Ollama Base URL'));
+  const baseInput = el('input', {
+    className: 'settings-input',
+    type: 'text',
+    placeholder: 'http://127.0.0.1:11434/v1',
+    id: 'llm-base-url',
+    value: 'http://127.0.0.1:11434/v1',
+  });
+  baseRow.appendChild(baseInput);
+  llmSection.appendChild(baseRow);
+
   // API Key input
-  const keyRow = el('div', { className: 'settings-row' });
+  const keyRow = el('div', { className: 'settings-row', id: 'llm-key-row' });
   keyRow.appendChild(el('label', {}, 'API Key'));
   const keyInput = el('input', {
     className: 'settings-input',
     type: 'password',
-    placeholder: 'sk-... or sk-ant-...',
+    placeholder: 'sk-... or sk-ant-... (Ollama: leave blank)',
     id: 'llm-key',
   });
   keyRow.appendChild(keyInput);
@@ -65,11 +79,20 @@ export function renderSettings(state) {
   const modelInput = el('input', {
     className: 'settings-input',
     type: 'text',
-    placeholder: 'gpt-4o-mini (default)',
+    placeholder: 'llama3.2 (Ollama default)',
     id: 'llm-model',
   });
   modelRow.appendChild(modelInput);
   llmSection.appendChild(modelRow);
+
+  const syncProviderUi = () => {
+    const isOllama = providerSelect.value === 'ollama';
+    baseRow.style.display = isOllama ? '' : 'none';
+    keyInput.placeholder = isOllama ? 'optional (ignored by Ollama)' : 'sk-... or sk-ant-...';
+    modelInput.placeholder = isOllama ? 'llama3.2' : 'gpt-4o-mini / claude-sonnet-4-6';
+  };
+  providerSelect.addEventListener('change', syncProviderUi);
+  syncProviderUi();
 
   // Buttons
   const btnRow = el('div', { className: 'settings-btn-row' });
@@ -99,16 +122,18 @@ export function renderSettings(state) {
     const provider = providerSelect.value;
     const apiKey = keyInput.value.trim();
     const model = modelInput.value.trim() || undefined;
+    const baseUrl = baseInput.value.trim() || undefined;
 
-    if (!apiKey) {
+    if (provider !== 'ollama' && !apiKey) {
       statusEl.textContent = 'API key is required';
       statusEl.className = 'settings-status error';
       return;
     }
 
     try {
-      const data = await configureLLM(provider, apiKey, model);
-      statusEl.textContent = `Active: ${data.provider} (${data.model})`;
+      const data = await configureLLM(provider, apiKey || 'ollama', model, provider === 'ollama' ? baseUrl : undefined);
+      const extra = data.baseUrl ? ` @ ${data.baseUrl}` : '';
+      statusEl.textContent = `Active: ${data.provider} (${data.model})${extra}`;
       statusEl.className = 'settings-status active';
       keyInput.value = '';  // Clear from DOM for security
     } catch (err) {
@@ -133,8 +158,13 @@ export function renderSettings(state) {
     const statusText = document.getElementById('llm-status-text');
     if (statusText) {
       if (data.enabled) {
-        statusText.textContent = `Active: ${data.provider} (${data.model})`;
+        const extra = data.baseUrl ? ` @ ${data.baseUrl}` : '';
+        statusText.textContent = `Active: ${data.provider} (${data.model})${extra}`;
         statusText.className = 'settings-status active';
+        if (data.provider) providerSelect.value = data.provider;
+        if (data.model) modelInput.value = data.model;
+        if (data.baseUrl) baseInput.value = data.baseUrl;
+        syncProviderUi();
       } else {
         statusText.textContent = 'LLM mode off (default)';
         statusText.className = 'settings-status';
