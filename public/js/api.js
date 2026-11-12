@@ -72,8 +72,8 @@ export function resetAll() {
   return post('/api/reset');
 }
 
-export function configureLLM(provider, apiKey, model) {
-  return post('/api/llm/configure', { provider, apiKey, model });
+export function configureLLM(provider, apiKey, model, baseUrl) {
+  return post('/api/llm/configure', { provider, apiKey, model, baseUrl });
 }
 
 export function getLLMStatus() {

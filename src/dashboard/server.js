@@ -1094,6 +1094,7 @@ export function createDashboardServer({ stats, attackLog, challengeState, agents
           provider: body.provider,
           apiKey: body.apiKey,
           model: body.model,
+          baseUrl: body.baseUrl,
         });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'configured', ...result }));
