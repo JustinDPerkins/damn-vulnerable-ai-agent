@@ -686,7 +686,46 @@ export function createDashboardServer({ stats, attackLog, challengeState, agents
       const messages = Array.isArray(body.messages)
         ? body.messages
         : [{ role: 'user', content: body.message || '' }];
+      const lastUser = [...messages].reverse().find(m => m && m.role === 'user');
+      const text = typeof lastUser?.content === 'string'
+        ? lastUser.content
+        : (typeof body.message === 'string' ? body.message : '');
       try {
+        // A2A agents only exercise trust/spoof logic on /a2a/message.
+        // Chat completions always returns a bland canned line — Attack Lab
+        // looked "dead" until we route them here.
+        if (agent.protocol === 'a2a') {
+          const from = typeof body.from === 'string' && body.from.trim()
+            ? body.from.trim()
+            : 'attacker';
+          const upstream = await fetch(`http://127.0.0.1:${agent.port}/a2a/message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from,
+              to: agent.id,
+              content: text,
+            }),
+          });
+          const data = await upstream.json();
+          const content = [data.content, data.note].filter(Boolean).join('\n\n')
+            || data.error
+            || JSON.stringify(data);
+          sendJson(res, upstream.status >= 400 && upstream.status !== 403 ? upstream.status : 200, {
+            id: `chatcmpl-a2a-${Date.now()}`,
+            object: 'chat.completion',
+            created: Math.floor(Date.now() / 1000),
+            model: agent.id,
+            choices: [{
+              index: 0,
+              message: { role: 'assistant', content },
+              finish_reason: 'stop',
+            }],
+            a2a: data,
+          });
+          return;
+        }
+
         const upstream = await fetch(`http://127.0.0.1:${agent.port}/v1/chat/completions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
