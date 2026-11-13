@@ -1,7 +1,7 @@
 {
   "name": "damn-vulnerable-ai-agent",
   "version": "0.9.3",
-  "description": "The AI agent you're supposed to break. 21 agents, 12 vulnerability categories, zero consequences.",
+  "description": "JaysWakeZone AI agent threat lab — intentionally vulnerable agents for security training.",
   "type": "module",
   "main": "src/index.js",
   "bin": {
@@ -32,13 +32,13 @@
     "ctf",
     "hackmyagent"
   ],
-  "author": "OpenA2A",
+  "author": "AstralJays / JaysWakeZone (fork)",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/opena2a-org/damn-vulnerable-ai-agent.git"
+    "url": "https://github.com/JustinDPerkins/damn-vulnerable-ai-agent.git"
   },
-  "homepage": "https://github.com/opena2a-org/damn-vulnerable-ai-agent#readme",
+  "homepage": "https://github.com/JustinDPerkins/damn-vulnerable-ai-agent#readme",
   "engines": {
     "node": ">=24.0.0"
   },

@@ -4,6 +4,11 @@ services:
     # Passes the shell's OPENA2A_TELEMETRY into the container only when it is set.
     environment:
       - OPENA2A_TELEMETRY
+      # Free local LLM (requires --profile llm and a pulled model)
+      - DVAA_LLM_PROVIDER=${DVAA_LLM_PROVIDER:-}
+      - DVAA_LLM_MODEL=${DVAA_LLM_MODEL:-llama3.2}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434/v1}
+      - DVAA_HOST=0.0.0.0
     ports:
       - "127.0.0.1:7001:7001"
       - "127.0.0.1:7002:7002"
@@ -28,3 +33,16 @@ services:
       - "127.0.0.1:7023:7023"
       - "127.0.0.1:9000:9000"
     restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles:
+      - llm
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
