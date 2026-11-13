@@ -75,7 +75,7 @@ receiver.
 
 - **The server path reported no usage at all.** dvaa's documented happy path is `docker run` (README §Quick start), whose `CMD` passes no subcommand (`Dockerfile:23`). That takes the server path, which reaches `tele.start()` (`src/index.js:1806`) and nothing else — the only `tele.track()` call lives in the CLI dispatcher (`src/cli/router.js:63`), which `process.exit()`s and is unreachable from the server. So the majority of installs emitted exactly one `start` event, on their boot day, and never a `command`.
 
-  The Registry's `engaged` metric requires an install to be active on **≥ 2 distinct UTC days AND** to have emitted **≥ 1 `command` event**. A docker install could satisfy neither. dvaa reported **177 monthly actives against 1 engaged user** (0.6%) while every other OpenA2A CLI converted at 45–86%. The lab was being used; it simply never said so.
+  The Registry's `engaged` metric requires an install to be active on **≥ 2 distinct UTC days AND** to have emitted **≥ 1 `command` event**. A docker install could satisfy neither. dvaa reported **177 monthly actives against 1 engaged user** (0.6%) while every other JaysWakeZone CLI converted at 45–86%. The lab was being used; it simply never said so.
 
   **This fixes the `command` half only — read the result accordingly.** `install_id` still churns across container recreation (see Known gaps), so a user who runs `docker run` on Monday and again on Tuesday is two install_ids of one day each and is *still* not engaged. After this change, `engaged` becomes reachable for someone who keeps one container alive across ≥ 2 UTC days (compose's `restart: unless-stopped`) and acts on both — not for the README's hero `docker run` flow. The 177 denominator is inflated by that same churn. Expect the number to move off 1; do **not** read it as a rate comparable to the other CLIs' 45–86%. It is a floor until identity churn is fixed too.
 
@@ -89,7 +89,7 @@ receiver.
 
   Throttled to one event per action per **UTC day** — the unit `engaged` actually counts. A rolling window would be subtly wrong: with a one-hour throttle, a user acting at 23:59 and again at 00:30 is genuinely active on two UTC days, but the second event is suppressed and they report one — the throttle hiding precisely the users this exists to count. Day-keying still collapses a 100-payload burst into a single event, and bounds the throttle map by the allowlist size.
 
-  Fire-and-forget and wrapped: telemetry cannot affect a response. No content, ids or paths reach the event name — only a stable label like `lab-chat`. `OPENA2A_TELEMETRY=off` is verified to suppress the server path end-to-end with the real SDK; `--offline` and `dvaa telemetry off` funnel through the same `session.enabled` check in `buildEvent` and are correct by construction (verified by reading, not by test).
+  Fire-and-forget and wrapped: telemetry cannot affect a response. No content, ids or paths reach the event name — only a stable label like `lab-chat`. `DVAA_TELEMETRY=off` is verified to suppress the server path end-to-end with the real SDK; `--offline` and `dvaa telemetry off` funnel through the same `session.enabled` check in `buildEvent` and are correct by construction (verified by reading, not by test).
 
   Note the event fires before route validation, so `POST /api/agents/nonexistent/chat` reports `lab-chat` and then 404s. It measures *attempted*, not *succeeded* — a human firing at a wrong id is still a human using the lab. The dashboard is unauthenticated, so a scanner pointed at it could mint events; bounded to one per action per day, and dvaa is normally localhost.
 
@@ -114,9 +114,9 @@ receiver.
 
 - **The README's Telemetry section lists what DVAA sends.** Its "Sent" line said one event per command and one start event when the dashboard server starts. It now lists each source as the code has it: a `command` event per CLI subcommand run that returns an exit code (a run that throws or exits at once on an error sends nothing), naming the subcommands that send nothing; a `start` event on every server start, including `--only`, which runs no dashboard; at most one `command` event per UTC day for each of the seven dashboard actions; and the bundled HackMyAgent's own events each time DVAA runs it, which the same opt-outs silence. The sentence claiming that nothing sent changes what another install detects is gone: what the Registry does with what it receives is outside this repository. `test/readme-telemetry-section.test.js` (NEW) fails when the section stops naming a dashboard action from `src/telemetry/actions.js`, a dispatched subcommand, or one of the two event kinds DVAA sends (`start` and `command`).
 
-- **`docker compose up` passes `OPENA2A_TELEMETRY` through to the container, and the image build runs its cache warm-up with telemetry off.**
+- **`docker compose up` passes `DVAA_TELEMETRY` through to the container, and the image build runs its cache warm-up with telemetry off.**
 
-- **Every HackMyAgent process the dashboard starts (a scan, a fix, the cold-cache `check-metadata` and the `--version` read) runs with `OPENA2A_TELEMETRY=off` in its own environment only; the dashboard server's own events are unchanged, and `dvaa scan` still runs HackMyAgent with the user's own setting.**
+- **Every HackMyAgent process the dashboard starts (a scan, a fix, the cold-cache `check-metadata` and the `--version` read) runs with `DVAA_TELEMETRY=off` in its own environment only; the dashboard server's own events are unchanged, and `dvaa scan` still runs HackMyAgent with the user's own setting.**
 
 ### Security
 
@@ -125,7 +125,7 @@ receiver.
 
 ### Known gaps (not fixed here)
 
-- **`install_id` still churns across container recreation.** There is no volume for `/home/node/.config/opena2a`, so a `docker run` or a `compose` recreate mints a new id (a plain `restart` keeps it). A named volume there would be created root-owned unless the image pre-creates the directory as `node` — the Dockerfile only chowns `/app` — and getting that wrong silently keeps the churn while risking the container for every user. It needs verifying against a live Docker daemon, so it is not in this change. Note that fixing it *alone* would have moved nothing: durable ids still emit one `start` and zero `command`s.
+- **`install_id` still churns across container recreation.** There is no volume for `/home/node/.config/dvaa`, so a `docker run` or a `compose` recreate mints a new id (a plain `restart` keeps it). A named volume there would be created root-owned unless the image pre-creates the directory as `node` — the Dockerfile only chowns `/app` — and getting that wrong silently keeps the churn while risking the container for every user. It needs verifying against a live Docker daemon, so it is not in this change. Note that fixing it *alone* would have moved nothing: durable ids still emit one `start` and zero `command`s.
 
 ### Tests
 
@@ -149,7 +149,7 @@ receiver.
 
 ### Added: one-port quickstart
 
-- `docker run -p 9000:9000 opena2a/dvaa` is now enough to get started. The dashboard drives the full fleet, including the Attack Lab, through `:9000`. The Attack Lab was the only feature that called agent ports directly from the browser; it now goes through a scoped `POST /api/agents/:id/chat` proxy on the dashboard, which resolves the agent by id and forwards to its in-container port. Publishing the agent ports (`-p 7001-7021:7001-7021`) is now only needed to attack agents directly from the host with `curl` or HackMyAgent.
+- `docker run -p 9000:9000 jayswakezone/dvaa` is now enough to get started. The dashboard drives the full fleet, including the Attack Lab, through `:9000`. The Attack Lab was the only feature that called agent ports directly from the browser; it now goes through a scoped `POST /api/agents/:id/chat` proxy on the dashboard, which resolves the agent by id and forwards to its in-container port. Publishing the agent ports (`-p 7001-7021:7001-7021`) is now only needed to attack agents directly from the host with `curl` or HackMyAgent.
 - Simplified the documented `docker run` port mapping: the four agent-port ranges collapse into one contiguous `7001-7021` range.
 
 ### Added: attack storytelling in the dashboard
@@ -187,11 +187,11 @@ receiver.
 
 ### Added: live-demo support for `dvaa demo aim-ab`
 
-- **Behavioral trust score now drops on a denied action.** The A/B demo previously showed a static `30/100`. RAGBot-AIM's current trust is now lowered by each `denied` out-of-scope attempt recorded in its audit log (`-6` per denial, floored at `5`), so Run B shows `30/100 -> 24/100`. The drop is event-driven and traces to the real denied event, not a hard-coded animation. Reset by truncating the agent's `audit.jsonl`. Logic in `src/aim-enforcer.js` (`trustDelta`); the static base from `@opena2a/aim-core` is unchanged.
+- **Behavioral trust score now drops on a denied action.** The A/B demo previously showed a static `30/100`. RAGBot-AIM's current trust is now lowered by each `denied` out-of-scope attempt recorded in its audit log (`-6` per denial, floored at `5`), so Run B shows `30/100 -> 24/100`. The drop is event-driven and traces to the real denied event, not a hard-coded animation. Reset by truncating the agent's `audit.jsonl`. Logic in `src/aim-enforcer.js` (`trustDelta`); the static base from `aim-core` is unchanged.
 - **`--offline` flag on the fleet** (`dvaa --api --offline`) disables anonymous telemetry so no cloud service sits in the path; prints a confirmation banner. `dvaa demo aim-ab` is also offline-by-default. The opt-out is applied at process entry, before `tele.init()` snapshots the telemetry config (setting it later does not suppress the post). Covered by `test/telemetry-offline.test.js`.
 - **`--cloud` token-destination guard** (`isSafeApiBase`): refuses to send the operator's AIM JWT to a non-`https` remote backend (plaintext only allowed for localhost), so a tampered cred file or stale `AIM_SERVER_URL` cannot ship the token in the clear.
 - **`-i` / `--interactive`** steps through the A/B live with pauses and narration and prints the commands to replicate it (for a follow-along audience). Falls back to the one-shot view under `--json` or when piped.
-- **`--cloud`** mirrors Run B's denied `http:post` to a hosted AIM dashboard using the operator's `aim-sdk login` session: reads `~/.aim/sdk_credentials.json`, registers `dvaa-ragbot-aim` (with DVAA's own Ed25519 key) via `GET`/`POST /api/v1/agents`, and posts a signed verification. Registration sends the full hosted-backend shape (`name`, `displayName`, `description`, `agentType`, `publicKey`); the hosted API rejects a subset with HTTP 500. Best-effort and offline-safe: not logged in or backend unreachable falls back to the local-only demo. Verified end-to-end against `api.aim.opena2a.org` (event recorded with `result: verified`). New `src/aim-cloud-register.js`.
+- **`--cloud`** mirrors Run B's denied `http:post` to a hosted AIM dashboard using the operator's `aim-sdk login` session: reads `~/.aim/sdk_credentials.json`, registers `dvaa-ragbot-aim` (with DVAA's own Ed25519 key) via `GET`/`POST /api/v1/agents`, and posts a signed verification. Registration sends the full hosted-backend shape (`name`, `displayName`, `description`, `agentType`, `publicKey`); the hosted API rejects a subset with HTTP 500. Best-effort and offline-safe: not logged in or backend unreachable falls back to the local-only demo. Verified end-to-end against `api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent` (event recorded with `result: verified`). New `src/aim-cloud-register.js`.
 - **Run script** `docs/demo/RUN_SCRIPT.md`: operator runbook (pre-flight, beat-by-beat narration, reset, timing, failure fallbacks, teardown, optional cloud follow-on).
 
 ### Tests
@@ -204,15 +204,15 @@ receiver.
 
 ### Fixed - UX papercuts from the 0.9.0 release-test
 
-Drains the three "Known issues will fix in 0.9.1" items from 0.9.0's CHANGELOG. Two of them lived in `@opena2a/cli-ui` and were fixed at root (cli-ui 0.5.1); one was local to `src/browse.js`.
+Drains the three "Known issues will fix in 0.9.1" items from 0.9.0's CHANGELOG. Two of them lived in `./src/lib/cli-ui.js` and were fixed at root (cli-ui 0.5.1); one was local to `src/browse.js`.
 
-- **`dvaa telemetry --help`** now prints a proper usage block (actions, per-invocation override `OPENA2A_TELEMETRY=off`, debug knob `OPENA2A_TELEMETRY_DEBUG=print`). Previously fell into the cli-ui `Unknown action` default branch and printed `Unknown action '--help'. Try 'dvaa telemetry [on|off|status]'.`. Root-cause fix in `@opena2a/cli-ui@0.5.1` `runTelemetryCommand`; consumed here by bumping the pin.
-- **`dvaa telemetry status`** toggle hint now flips based on current state - suggests `off` + `OPENA2A_TELEMETRY=off` when telemetry is on, suggests `on` + `OPENA2A_TELEMETRY=on` when telemetry is off. Previously always suggested `off`, which was useless when telemetry was already off. Root-cause fix in `@opena2a/cli-ui@0.5.1` `renderStatus`.
+- **`dvaa telemetry --help`** now prints a proper usage block (actions, per-invocation override `DVAA_TELEMETRY=off`, debug knob `DVAA_TELEMETRY_DEBUG=print`). Previously fell into the cli-ui `Unknown action` default branch and printed `Unknown action '--help'. Try 'dvaa telemetry [on|off|status]'.`. Root-cause fix in `./src/lib/cli-ui.js@0.5.1` `runTelemetryCommand`; consumed here by bumping the pin.
+- **`dvaa telemetry status`** toggle hint now flips based on current state - suggests `off` + `DVAA_TELEMETRY=off` when telemetry is on, suggests `on` + `DVAA_TELEMETRY=on` when telemetry is off. Previously always suggested `off`, which was useless when telemetry was already off. Root-cause fix in `./src/lib/cli-ui.js@0.5.1` `renderStatus`.
 - **`dvaa browse --help`** now prints a browse-specific usage block (target arg, `--agents`, `--categories`, `--json`, `--publish`, `--verbose`) instead of falling back to the root `dvaa --help`. Root cause: `src/index.js`'s global `--help` check ran before the `browse` handler. Reordered so the `browse` subprocess spawn happens first, then `src/browse.js` checks `--help`/`-h` and prints its own usage. Subcommand-dispatched commands (`chat`, `demo`, `telemetry`, etc.) already had this property via `dispatch()`; only `browse` was special-cased.
 
 ### Changed - dependencies
 
-- Bumped `@opena2a/cli-ui` pin from `0.4.0` to `0.5.1`. 0.5.0 (rich-context check block primitives, 2026-05-09) was a feature release we hadn't picked up yet; 0.5.1 (this release-test fixes) is what 0.9.1 actually needs. No DVAA code depends on 0.5.0's new exports.
+- Bumped `./src/lib/cli-ui.js` pin from `0.4.0` to `0.5.1`. 0.5.0 (rich-context check block primitives, 2026-05-09) was a feature release we hadn't picked up yet; 0.5.1 (this release-test fixes) is what 0.9.1 actually needs. No DVAA code depends on 0.5.0's new exports.
 
 ### Tests
 
@@ -227,7 +227,7 @@ This release ships only the UX papercuts from 0.9.0's release-test. No new agent
 ### Added - AIM A/B demo
 
 - **RAGBot-AIM**, the 15th agent (#42). Same code as RAGBot, with `aimEnforced: true` and capability grant `rag:read + chat:respond`. The shared `generateResponse()` consults `agent.aimEnforced` at one point only - just before the outbound `submit_to_index` tool call - so the AIM-enforced path is byte-identical to the vulnerable path except for the one `maybeEnforce()` check.
-- **`dvaa demo aim-ab`** runner (#42). Deterministic A/B against the AgentPwn `APWN-DE-003` URL-exfiltration payload. Stands up a one-shot canary listener, POSTs the same poisoned document to RAGBot and to RAGBot-AIM, and prints a presenter-friendly comparison. Exit 0 = PASS (injection landed on both, Run A executed the exfil, Run B was denied by AIM). Useful as a stage demo AND a CI regression gate. Backed by `@opena2a/aim-core@0.2.0`; local Ed25519 identity, JSON-lines audit log, capability policy, and trust score all stored under `<DVAA_AIM_DATA_DIR or .dvaa-aim>/<agent.id>/`. No server, no API key, no network beyond the canary.
+- **`dvaa demo aim-ab`** runner (#42). Deterministic A/B against the AgentPwn `APWN-DE-003` URL-exfiltration payload. Stands up a one-shot canary listener, POSTs the same poisoned document to RAGBot and to RAGBot-AIM, and prints a presenter-friendly comparison. Exit 0 = PASS (injection landed on both, Run A executed the exfil, Run B was denied by AIM). Useful as a stage demo AND a CI regression gate. Backed by `aim-core@0.2.0`; local Ed25519 identity, JSON-lines audit log, capability policy, and trust score all stored under `<DVAA_AIM_DATA_DIR or .dvaa-aim>/<agent.id>/`. No server, no API key, no network beyond the canary.
 - **Cloud-mode reporter** (#44). Optional fire-and-forget mirror of each AIM enforcement decision to a registered AIM server. The local enforcement decision remains authoritative; the cloud post is best-effort. Ed25519-signed POST to `/api/v1/sdk-api/verifications`, matching the Python `aim-sdk@1.21.0` `verify_capability` wire format. Set `AIM_SERVER_URL` + `DVAA_AIM_CLOUD_AGENT_ID` to enable; `docs/demo/setup-aim-local.sh` brings up the 4-service local stack and registers the agent.
 
 ### Added - Interactive research-agent demo
@@ -280,7 +280,7 @@ These were caught in the 0.9.0 release test against the built tarball; all three
 ## 0.8.2
 
 ### Fixed
-- Subcommand telemetry events (`dvaa agents`, `dvaa scan`, etc.) were silently lost because the dispatcher fired `tele.track()` and immediately called `process.exit()`, killing Node before the HTTP request flushed. Discovered during prod canary verification - the curl probe landed in the Registry but the actual CLI did not. Fix: bump to `@opena2a/telemetry@0.1.2` (adds `flush()` and a `beforeExit` drain) and `await tele.flush()` in the dispatcher before exit. Per-event 2s timeout unchanged - `dvaa <cmd>` never hangs longer than that.
+- Subcommand telemetry events (`dvaa agents`, `dvaa scan`, etc.) were silently lost because the dispatcher fired `tele.track()` and immediately called `process.exit()`, killing Node before the HTTP request flushed. Discovered during prod canary verification - the curl probe landed in the Registry but the actual CLI did not. Fix: bump to `./src/lib/telemetry.js@0.1.2` (adds `flush()` and a `beforeExit` drain) and `await tele.flush()` in the dispatcher before exit. Per-event 2s timeout unchanged - `dvaa <cmd>` never hangs longer than that.
 
 ### Note
 - v0.8.1 was tagged but the npm publish failed (Trusted Publisher not yet configured for `damn-vulnerable-ai-agent`). v0.8.2 supersedes it; users should install 0.8.2 directly.
@@ -288,7 +288,7 @@ These were caught in the 0.9.0 release test against the built tarball; all three
 ## 0.8.1
 
 ### Added
-- Tier-1 anonymous usage telemetry via `@opena2a/telemetry`: `dvaa --version` shows the disclosure line; `dvaa telemetry [on|off|status]` subcommand inspects and toggles. Disable per-invocation with `OPENA2A_TELEMETRY=off`, persistently with `dvaa telemetry off`, audit payloads with `OPENA2A_TELEMETRY_DEBUG=print`. README §Telemetry documents the full schema and the [opena2a.org/telemetry](https://opena2a.org/telemetry) policy page.
+- Tier-1 anonymous usage telemetry via `./src/lib/telemetry.js`: `dvaa --version` shows the disclosure line; `dvaa telemetry [on|off|status]` subcommand inspects and toggles. Disable per-invocation with `DVAA_TELEMETRY=off`, persistently with `dvaa telemetry off`, audit payloads with `DVAA_TELEMETRY_DEBUG=print`. README §Telemetry documents the full schema and the [github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry) policy page.
 - `release-smoke.md` §7 covers the seven telemetry checks (--version, status, off-persist, on-persist, env-off override, debug-print, network-failure tolerance).
 
 ### Behaviour

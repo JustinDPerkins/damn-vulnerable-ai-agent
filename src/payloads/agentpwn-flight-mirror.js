@@ -17,7 +17,7 @@
  * plus a visible-body restatement, both carrying the callback URL. Detection
  * is handled by detectInjection() in src/web-fetch.js.
  *
- * Source pattern: opena2a-org/agentpwn (data-exfiltration category).
+ * Source pattern: JustinDPerkins/agentpwn (data-exfiltration category).
  */
 
 // Base URL the agent is asked to fetch. Brand-neutral path; override with

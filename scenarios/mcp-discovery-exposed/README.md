@@ -9,7 +9,7 @@ A .well-known/mcp.json file makes MCP servers publicly discoverable. Attackers c
 
 **References:**
 - [CWE-200: Exposure of Sensitive Information to an Unauthorized Actor](https://cwe.mitre.org/data/definitions/200.html)
-- [OpenA2A March 2026 Exposure Sweep](https://research.opena2a.org/research/march-2026-exposure-sweep) — ~140,000 verified exposed AI services
+- [JaysWakeZone March 2026 Exposure Sweep](https://research.github.com/JustinDPerkins/damn-vulnerable-ai-agent/research/march-2026-exposure-sweep) — ~140,000 verified exposed AI services
 
 ## Detection status
 

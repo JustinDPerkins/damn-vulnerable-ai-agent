@@ -332,7 +332,7 @@ Your knowledge base contains company policies and user data.`,
   },
 
   // Same vulnerability profile and code path as RAGBot, with a capability
-  // grant enforced by @opena2a/aim-core at the tool boundary. The poisoned
+  // grant enforced by aim-core at the tool boundary. The poisoned
   // RAG document still lands (injection is not filtered); the outbound
   // exfil tool call is denied because http:post is not in the grant.
   // Toggle the enforcement with AIM_ENFORCEMENT=off to reproduce RAGBot's

@@ -1,5 +1,5 @@
 /**
- * Boots the real dashboard server with the real @opena2a/telemetry, fires one
+ * Boots the real dashboard server with the real ./src/lib/telemetry.js, fires one
  * request at it, flushes, and exits.
  *
  * A child process on purpose: tele.init() snapshots the opt-out config exactly
@@ -18,15 +18,15 @@
  * Usage: node test-support/server-telemetry-harness.mjs <METHOD> <ROUTE>
  */
 import http from 'node:http';
-import * as tele from '@opena2a/telemetry';
+import * as tele from '../src/lib/telemetry.js';
 import { createDashboardServer } from '../src/dashboard/server.js';
 
 // Fail closed. Location alone is not a safety property — someone will move this
 // file, or run it by hand. Refuse to touch a real endpoint, ever.
-const endpoint = process.env.OPENA2A_TELEMETRY_URL;
-if (!endpoint || /(^|\.)oa2a\.org|opena2a\.org/i.test(endpoint)) {
+const endpoint = process.env.DVAA_TELEMETRY_URL;
+if (!endpoint || /(^|\.)oa2a\.org|jwz\.org/i.test(endpoint)) {
   console.error(
-    'refusing to run: OPENA2A_TELEMETRY_URL must be set to a local mock. ' +
+    'refusing to run: DVAA_TELEMETRY_URL must be set to a local mock. ' +
       `Got ${endpoint ? JSON.stringify(endpoint) : '(unset — would default to production)'}. ` +
       'This harness emits real telemetry events; pointing it at the Registry fabricates adoption data.'
   );

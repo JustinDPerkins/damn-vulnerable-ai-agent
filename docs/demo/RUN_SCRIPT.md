@@ -14,7 +14,7 @@
 |---|-------|------------------|----------|
 | 1 | Node installed | `node -v` | v20+ (tested on v25) |
 | 2 | In the repo | `cd <path>/damn-vulnerable-ai-agent` | (no output) |
-| 3 | Deps present | `ls node_modules/@opena2a/aim-core` | directory exists |
+| 3 | Deps present | `ls node_modules/aim-core` | directory exists |
 | 4 | **Offline mode** (kills the only outbound call) | start the fleet with `--offline` (step 1); the `demo` command self-disables telemetry | no env var needed |
 | 5 | Reset audit log (so the score drop starts at 30) | `: > .dvaa-aim/ragbot-aim/audit.jsonl` | empty file |
 | 6 | Dry-run the whole demo once | `node src/index.js --api --offline &` then `node src/index.js demo aim-ab` | `Verdict: PASS`, exit 0, trust `30 -> 24` |
@@ -49,7 +49,7 @@ Offline mode: anonymous telemetry disabled (no network calls).
 Dashboard: http://localhost:9000
 ```
 
-`--offline` disables the anonymous telemetry post, so no OpenA2A cloud service sits in the path. The `demo` command (step 2) self-disables it too.
+`--offline` disables the anonymous telemetry post, so no JaysWakeZone cloud service sits in the path. The `demo` command (step 2) self-disables it too.
 
 > **SAY:** "Here's a fleet of AI agents. Two of them matter: RAGBot on 7005, and RAGBot-AIM on 7014. **Identical code.** The only difference is RAGBot-AIM has an AIM capability grant attached."
 > **POINT:** the two RAGBot lines.
@@ -180,7 +180,7 @@ Only after the offline proof above, and only if venue wifi is reliable. This put
 
 **Once, beforehand (needs network):**
 ```bash
-aim-sdk login                 # browser login to your AIM account at aim.opena2a.org
+aim-sdk login                 # browser login to your AIM account at aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent
 ```
 This stores a session at `~/.aim/sdk_credentials.json`. The access token expires quickly, so re-login or refresh it shortly before you present.
 
@@ -193,10 +193,10 @@ node src/index.js demo aim-ab --cloud  # Terminal 2
 **Expected:**
 ```
   cloud reporting on  account: you@example.com
-  agent registered: dvaa-ragbot-aim  ->  https://aim.opena2a.org/agents/<id>
+  agent registered: dvaa-ragbot-aim  ->  https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent/agents/<id>
   ...A/B runs, same as offline...
   Cloud dashboard
-  event posted  http:post (denied)  ->  https://aim.opena2a.org/agents/<id>
+  event posted  http:post (denied)  ->  https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent/agents/<id>
 ```
 
 > **SAY:** "And it's not just my terminal, this is registered to a real account. Here's the same denied action in the dashboard, signed and logged." **POINT:** open the printed URL, go to the agent's **Verification Events**.

@@ -10,4 +10,4 @@ vLLM started with `--host 0.0.0.0`, exposing the OpenAI-compatible inference API
 
 **References:**
 - [CWE-284: Improper Access Control](https://cwe.mitre.org/data/definitions/284.html)
-- [OpenA2A March 2026 Exposure Sweep](https://research.opena2a.org/research/march-2026-exposure-sweep) — ~140,000 verified exposed AI services
+- [JaysWakeZone March 2026 Exposure Sweep](https://research.github.com/JustinDPerkins/damn-vulnerable-ai-agent/research/march-2026-exposure-sweep) — ~140,000 verified exposed AI services

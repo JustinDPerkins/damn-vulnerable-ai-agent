@@ -156,7 +156,7 @@ async function ensureFleet(dataDir, { cache }) {
   // from the presenter's shell. AIM_ENFORCEMENT stays passthrough.
   const env = fleetEnv({
     DVAA_AIM_DATA_DIR: dataDir,
-    OPENA2A_TELEMETRY: 'off',
+    DVAA_TELEMETRY: 'off',
     DVAA_RESEARCH_CACHE: cache ? 'on' : 'off',
   });
   // Scoped fleet: exactly the two agents this demo drives, and no dashboard.

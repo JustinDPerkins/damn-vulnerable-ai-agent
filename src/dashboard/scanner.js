@@ -110,7 +110,7 @@ async function getHmaVersion(hmaBin, { telemetryOff = false } = {}) {
  * @param {boolean}  [opts.fix=false] Apply HMA's --fix to the copy and report what changed.
  * @param {string}   [opts.hmaBin]   HackMyAgent binary; defaults to the resolved install.
  * @param {boolean}  [opts.hmaTelemetryOff=false] Start every HackMyAgent child
- *   with OPENA2A_TELEMETRY=off in its own environment. The dashboard passes
+ *   with DVAA_TELEMETRY=off in its own environment. The dashboard passes
  *   true; `dvaa scan` does not, so its children keep the user's setting.
  * @returns {Promise<ScanResult>}
  */
@@ -354,14 +354,14 @@ function diagnoseMissing(checkId, allFindings) {
  * `dvaa scan`. The dashboard counts a scan or fix under DVAA's own `lab-scan`
  * or `lab-fix` action and passes hmaTelemetryOff, so each child behind it (the
  * scan, the fix, `check-metadata` and `--version`) runs with
- * OPENA2A_TELEMETRY=off in its own environment only. `dvaa scan` does not pass
+ * DVAA_TELEMETRY=off in its own environment only. `dvaa scan` does not pass
  * it: its children inherit the environment unchanged, so HackMyAgent follows
  * the user's setting. process.env itself is never changed.
  */
 function spawnCapture(cmd, args, timeoutMs, { telemetryOff = false } = {}) {
   return new Promise(resolve => {
     const options = telemetryOff
-      ? { shell: false, env: { ...process.env, OPENA2A_TELEMETRY: 'off' } }
+      ? { shell: false, env: { ...process.env, DVAA_TELEMETRY: 'off' } }
       : { shell: false };
     const child = spawn(cmd, args, options);
     let stdout = '';

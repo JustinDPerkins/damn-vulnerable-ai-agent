@@ -40,7 +40,7 @@ Loaded inline at agent server startup. The outbound `submit_to_index` call is ma
 action 'http:post' is outside the agent's declared capability grant (rag:read, chat:respond)
 ```
 
-Identity (Ed25519), audit log (JSON-lines), capability policy (in-memory from inline shorthand), and trust score are all backed by [`@opena2a/aim-core`](https://www.npmjs.com/package/@opena2a/aim-core), pinned at `0.2.0`. **No server, no API key, no network.** Per-agent data lives under `<DVAA_AIM_DATA_DIR or .dvaa-aim>/<agent.id>/`.
+Identity (Ed25519), audit log (JSON-lines), capability policy (in-memory from inline shorthand), and trust score are all backed by [`aim-core`](https://www.npmjs.com/package/aim-core), pinned at `0.2.0`. **No server, no API key, no network.** Per-agent data lives under `<DVAA_AIM_DATA_DIR or .dvaa-aim>/<agent.id>/`.
 
 ## The enforcement toggle
 
@@ -94,7 +94,7 @@ The script will:
 1. `docker compose up` the 4-service AIM stack (postgres + redis + backend + frontend) in the sibling `agent-identity-management/` repo
 2. Generate `.env` with shell-safe random secrets for postgres / redis / JWT / keyvault (re-uses existing if present)
 3. Add a `docker-compose.override.yml` that remaps aim-postgres to host port 5433 (so it coexists with a local postgres on 5432)
-4. Seed a local admin user (`admin@opena2a.org` / `AIM2025!Secure`) via direct SQL using a bcrypt hash from migration 072
+4. Seed a local admin user (`admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent` / `AIM2025!Secure`) via direct SQL using a bcrypt hash from migration 072
 5. Log in as that admin to capture a JWT
 6. Generate DVAA's Ed25519 identity for `ragbot-aim` (or reuse if `.dvaa-aim/ragbot-aim/identity.json` exists)
 7. Register the agent against the local backend with that public key and capabilities `rag:read, chat:respond`
@@ -115,7 +115,7 @@ dvaa --api
 dvaa demo aim-ab
 ```
 
-After the demo finishes, open http://localhost:3000, log in (`admin@opena2a.org` / `AIM2025!Secure`), navigate to Agents → see `dvaa-ragbot-aim` registered, navigate to Verification Events → see two events (one for each `dvaa demo aim-ab` run, with `action_type: http:post`, `status: success`, agent's trust score, Ed25519 signature on the request body).
+After the demo finishes, open http://localhost:3000, log in (`admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent` / `AIM2025!Secure`), navigate to Agents → see `dvaa-ragbot-aim` registered, navigate to Verification Events → see two events (one for each `dvaa demo aim-ab` run, with `action_type: http:post`, `status: success`, agent's trust score, Ed25519 signature on the request body).
 
 This is the conversion-funnel visual for live demos: show the CLI demo for proof, then click into the dashboard to show the registered agent + audit trail. The honest pitch is "AIM denied this specific http:post because it's outside the agent's grant" — keep the claim narrow per the Scope section above. Do not overclaim that AIM blocked the injection itself; it blocked the resulting outbound action.
 
@@ -140,7 +140,7 @@ Or `down -v` to also wipe the postgres volume (you'll need to re-seed the admin 
 
 ## One-command cloud mode (`--cloud`, hosted dashboard)
 
-The section above is the local docker stack. For the hosted dashboard at `aim.opena2a.org`, `dvaa demo aim-ab --cloud` does the registration + reporting in one step, using the operator's own `aim-sdk login` session, with no docker, no admin seeding, no manual env vars.
+The section above is the local docker stack. For the hosted dashboard at `aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent`, `dvaa demo aim-ab --cloud` does the registration + reporting in one step, using the operator's own `aim-sdk login` session, with no docker, no admin seeding, no manual env vars.
 
 ```bash
 aim-sdk login                 # once: browser OAuth into your AIM account
@@ -162,7 +162,7 @@ This registration contract is the hosted mirror of [`docs/demo/setup-aim-local.s
 
 **Honest scope (unchanged):** `--cloud` posts a faithful copy of the *locally-enforced* decision. Local enforcement remains authoritative; the dashboard event is a mirror, not a second enforcement. The narrow claim still holds: AIM denied this `http:post` because it is outside the grant.
 
-**Verification status:** verified end-to-end against the live hosted backend (`api.aim.opena2a.org`) on 2026-06-05: `dvaa-ragbot-aim` registered under a real account and the denied `http:post` posted as a verification event that the server cryptographically verified (`status: success, result: verified`, queryable via `GET /api/v1/verification-events?agentId=<id>`). The registration payload requires the full SDK shape (`name`, `displayName`, `description`, `agentType`, `publicKey`); the hosted backend returns HTTP 500 "name and display_name are required" without them (localhost accepts a subset). Re-run a real `aim-sdk login` + `--cloud` dry run on the demo machine before presenting in case the login session has expired.
+**Verification status:** verified end-to-end against the live hosted backend (`api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent`) on 2026-06-05: `dvaa-ragbot-aim` registered under a real account and the denied `http:post` posted as a verification event that the server cryptographically verified (`status: success, result: verified`, queryable via `GET /api/v1/verification-events?agentId=<id>`). The registration payload requires the full SDK shape (`name`, `displayName`, `description`, `agentType`, `publicKey`); the hosted backend returns HTTP 500 "name and display_name are required" without them (localhost accepts a subset). Re-run a real `aim-sdk login` + `--cloud` dry run on the demo machine before presenting in case the login session has expired.
 
 ## Interactive mode (`-i`, follow-along)
 
@@ -331,6 +331,6 @@ Things to verify on the actual stage machine before any live presentation, in pr
 ## What I could not verify against the AIM or AgentPwn code
 
 - **AgentPwn `APWN-DE-003` injection text stability.** I mirrored the payload into [`src/payloads/agentpwn-mirror.js`](src/payloads/agentpwn-mirror.js) as of 2026-05-24, against `agentpwn/src/lib/payloads/templates.ts:280-290`. If AgentPwn ever edits that entry, the mirror will drift. The mirror file carries a sync date comment so any future maintainer can re-check.
-- **`@opena2a/aim-core` API stability across the 0.2 line.** Pinned to `0.2.0` exactly. If we bump to `0.3.x` the enforcer module may need updates; check `AIMCore` class shape and `loadPolicy` inline-shorthand signature before bumping.
-- **AIM has three SDKs across two ecosystems.** DVAA uses `@opena2a/aim-core@0.2.0` on npm: the local-first JS library (Ed25519, capability policy, local audit log, trust score, no server). Python users have a fully published cloud SDK at `aim-sdk@1.21.0` on PyPI (`from aim_sdk import secure`, auto-register, dashboard sync, API key optional). A TS port of the Python cloud SDK lives in `agent-identity-management/sdk/typescript/` (as `@opena2a/aim-sdk`) but is NOT published; do not try to `npm install` it. If you read AIM repo code expecting the cloud-API shape (`AIMClient`, `verifyAction()`), that shape exists in Python today and will exist in JS when the TS port ships.
+- **`aim-core` API stability across the 0.2 line.** Pinned to `0.2.0` exactly. If we bump to `0.3.x` the enforcer module may need updates; check `AIMCore` class shape and `loadPolicy` inline-shorthand signature before bumping.
+- **AIM has three SDKs across two ecosystems.** DVAA uses `aim-core@0.2.0` on npm: the local-first JS library (Ed25519, capability policy, local audit log, trust score, no server). Python users have a fully published cloud SDK at `aim-sdk@1.21.0` on PyPI (`from aim_sdk import secure`, auto-register, dashboard sync, API key optional). A TS port of the Python cloud SDK lives in `agent-identity-management/sdk/typescript/` (as `@removed/aim-sdk`) but is NOT published; do not try to `npm install` it. If you read AIM repo code expecting the cloud-API shape (`AIMClient`, `verifyAction()`), that shape exists in Python today and will exist in JS when the TS port ships.
 - **Trust score computation is verified by smoke test, not by reading aim-core's `trust.ts` source.** The library returns `{ overall, score, grade, factors }`; the runner surfaces `score` and `grade`. If the schema changes between releases, the runner will silently show `undefined`. There is no schema guard.

@@ -35,7 +35,7 @@ def chat(msg: str) -> str:
         print("Start with: docker compose up -d")
         print("Or: docker run -p 127.0.0.1:7001-7008:7001-7008 "
               "-p 127.0.0.1:7010-7013:7010-7013 -p 127.0.0.1:7020-7021:7020-7021 "
-              "-p 127.0.0.1:9000:9000 opena2a/dvaa")
+              "-p 127.0.0.1:9000:9000 jayswakezone/dvaa")
         sys.exit(1)
     except (KeyError, json.JSONDecodeError) as e:
         print(f"[ERROR] Unexpected response format: {e}")

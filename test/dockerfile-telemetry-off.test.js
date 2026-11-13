@@ -3,7 +3,7 @@
  *
  * The image build runs hackmyagent to pre-generate its check-metadata cache.
  * That run is our build, not anyone's use of the scanner, so every hackmyagent
- * call in a RUN step carries OPENA2A_TELEMETRY=off. The switch sits on the
+ * call in a RUN step carries DVAA_TELEMETRY=off. The switch sits on the
  * call rather than in an image ENV, so a running container still follows the
  * telemetry choice of whoever starts it.
  *
@@ -26,17 +26,17 @@
  * after npm install too), so a launcher the check does not know cannot hide a
  * call.
  *
- * A call passes when its simple command starts with OPENA2A_TELEMETRY=off,
+ * A call passes when its simple command starts with DVAA_TELEMETRY=off,
  * among other assignments and redirections or after `env`:
- * `OPENA2A_TELEMETRY=off <command>` or `env OPENA2A_TELEMETRY=off <command>`.
+ * `DVAA_TELEMETRY=off <command>` or `env DVAA_TELEMETRY=off <command>`.
  * It fails when the variable is missing or has another value (a quoted value
  * with a space in it included), when it is set on another command
- * (`OPENA2A_TELEMETRY=off npm ci && hackmyagent ...`), by `export` or by an
+ * (`DVAA_TELEMETRY=off npm ci && hackmyagent ...`), by `export` or by an
  * ENV or ARG line, and when `env -i` or `env -u` clears it.
  *
  * Not covered: a call through a variable (`$HMA check-metadata`). Flagged
  * although the switch reaches the call: the switch at the start of a quoted
- * script (`sh -c "OPENA2A_TELEMETRY=off hackmyagent ..."`; write it in front
+ * script (`sh -c "DVAA_TELEMETRY=off hackmyagent ..."`; write it in front
  * of `sh`), a call after `;`, `&&` or `|` in a quoted script or a heredoc
  * whose outer command sets the switch (write it on the call), and a word that
  * names the package without running it (`rm -rf node_modules/hackmyagent`).
@@ -59,7 +59,7 @@ const SKIP_NAMES = new Set([
   '.hackmyagent-cache', '.hackmyagent-backup', 'coverage', 'dist', '.playwright-mcp',
 ]);
 const DOCKERFILE = /^(?:dockerfile|containerfile)(?:\..+)?$|\.(?:dockerfile|containerfile)$/i;
-const SWITCH = 'OPENA2A_TELEMETRY';
+const SWITCH = 'DVAA_TELEMETRY';
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -228,7 +228,7 @@ const REDIRECT_ALONE = /^\d*(?:[<>]{1,2}|[<>]&|<>|>\||&>>?)$/;
 const namesHackmyagent = (text) =>
   text.split('/').some((segment) => segment.replace(/@[^@]*$/, '') === 'hackmyagent');
 
-// Whether the words in front of a call leave OPENA2A_TELEMETRY=off in its
+// Whether the words in front of a call leave DVAA_TELEMETRY=off in its
 // environment: the assignments and redirections that start the command, and
 // those after `env` and its options. An assignment cut inside quotes is not
 // the switch, because its value goes on past the cut.
@@ -280,42 +280,42 @@ test('the check flags a hackmyagent call that runs without the switch', () => {
     // [Dockerfile, lines flagged]
     [`RUN ${HMA} check-metadata`, [1]],
     // The switch on another command of the step, or outside the step.
-    [`RUN OPENA2A_TELEMETRY=off npm ci && ${HMA} check-metadata`, [1]],
-    [`RUN echo OPENA2A_TELEMETRY=off | ${HMA} check-metadata`, [1]],
-    [`RUN export OPENA2A_TELEMETRY=off && ${HMA} check-metadata`, [1]],
-    [`ENV OPENA2A_TELEMETRY=off\nRUN ${HMA} check-metadata`, [2]],
-    [`ARG OPENA2A_TELEMETRY=off\nRUN ${HMA} check-metadata`, [2]],
+    [`RUN DVAA_TELEMETRY=off npm ci && ${HMA} check-metadata`, [1]],
+    [`RUN echo DVAA_TELEMETRY=off | ${HMA} check-metadata`, [1]],
+    [`RUN export DVAA_TELEMETRY=off && ${HMA} check-metadata`, [1]],
+    [`ENV DVAA_TELEMETRY=off\nRUN ${HMA} check-metadata`, [2]],
+    [`ARG DVAA_TELEMETRY=off\nRUN ${HMA} check-metadata`, [2]],
     // Continuation lines: the call is reported on its own line.
     [`RUN mkdir -p /app/.hackmyagent-cache && \\\n    ${HMA} check-metadata \\\n      > /app/.hackmyagent-cache/check-metadata.json`, [2]],
-    [`RUN OPENA2A_TELEMETRY=off npm ci && \\\n    ${HMA} check-metadata`, [2]],
+    [`RUN DVAA_TELEMETRY=off npm ci && \\\n    ${HMA} check-metadata`, [2]],
     [`RUN npm ci && \\\n# warm the cache\n\n    ${HMA} check-metadata`, [4]],
     ['# escape=`\nRUN npm ci && `\n    ' + `${HMA} check-metadata`, [3]],
     // A command substitution is a command of its own, also inside quotes.
-    [`RUN OPENA2A_TELEMETRY=off V=$(${HMA} --version) && echo "$V"`, [1]],
-    [`RUN mkdir -p /c && \\\n    V=$(${HMA} --version | head -1) && \\\n    OPENA2A_TELEMETRY=off ${HMA} check-metadata > "/c/v$V.json"`, [2]],
+    [`RUN DVAA_TELEMETRY=off V=$(${HMA} --version) && echo "$V"`, [1]],
+    [`RUN mkdir -p /c && \\\n    V=$(${HMA} --version | head -1) && \\\n    DVAA_TELEMETRY=off ${HMA} check-metadata > "/c/v$V.json"`, [2]],
     [`RUN V="$(${HMA} --version)"`, [1]],
     ['RUN echo `hackmyagent --version`', [1]],
     // Another value, a value cut by a quoted space, or cleared again by env.
-    [`RUN OPENA2A_TELEMETRY=on ${HMA} check-metadata`, [1]],
-    [`RUN OPENA2A_TELEMETRY=offline ${HMA} check-metadata`, [1]],
-    [`RUN OPENA2A_TELEMETRY="off now" ${HMA} check-metadata`, [1]],
-    [`RUN OPENA2A_TELEMETRY=off env -i PATH="$PATH" ${HMA} check-metadata`, [1]],
-    [`RUN OPENA2A_TELEMETRY=off env -u OPENA2A_TELEMETRY ${HMA} check-metadata`, [1]],
+    [`RUN DVAA_TELEMETRY=on ${HMA} check-metadata`, [1]],
+    [`RUN DVAA_TELEMETRY=offline ${HMA} check-metadata`, [1]],
+    [`RUN DVAA_TELEMETRY="off now" ${HMA} check-metadata`, [1]],
+    [`RUN DVAA_TELEMETRY=off env -i PATH="$PATH" ${HMA} check-metadata`, [1]],
+    [`RUN DVAA_TELEMETRY=off env -u DVAA_TELEMETRY ${HMA} check-metadata`, [1]],
     // Launchers, a path into the package, a quoted script and compound commands.
     ['RUN npx -y hackmyagent@latest check-metadata', [1]],
     ['RUN node node_modules/hackmyagent/dist/cli.js check-metadata', [1]],
     ['RUN sh -c "npm ci && hackmyagent check-metadata"', [1]],
     ['RUN (cd /app && hackmyagent check-metadata)', [1]],
-    ['RUN if [ -d /app ]; then OPENA2A_TELEMETRY=off npm ci; hackmyagent check-metadata; fi', [1]],
+    ['RUN if [ -d /app ]; then DVAA_TELEMETRY=off npm ci; hackmyagent check-metadata; fi', [1]],
     // Flags, ONBUILD, lower case, the exec form and a heredoc.
     ['run --mount=type=cache,target=/root/.npm --network=default hackmyagent check-metadata', [1]],
     ['ONBUILD RUN hackmyagent check-metadata', [1]],
     [`RUN ["${HMA}", "check-metadata"]`, [1]],
     ['RUN ["sh", "-c", "hackmyagent check-metadata"]', [1]],
-    ['RUN ["env", "OPENA2A_TELEMETRY=off now", "hackmyagent", "check-metadata"]', [1]],
+    ['RUN ["env", "DVAA_TELEMETRY=off now", "hackmyagent", "check-metadata"]', [1]],
     [`RUN <<EOF\nnpm ci\n${HMA} check-metadata\nEOF`, [3]],
     // Each call counts on its own.
-    [`RUN OPENA2A_TELEMETRY=off ${HMA} check-metadata\nRUN ${HMA} check-metadata`, [2]],
+    [`RUN DVAA_TELEMETRY=off ${HMA} check-metadata\nRUN ${HMA} check-metadata`, [2]],
   ];
   for (const [source, lines] of cases) {
     assert.deepEqual(flaggedLines(source), lines, `not flagged as it should be:\n${source}`);
@@ -325,19 +325,19 @@ test('the check flags a hackmyagent call that runs without the switch', () => {
 test('the check passes a call that carries the switch, and words that are not a call', () => {
   const cases = [
     // [Dockerfile, calls read]
-    [`RUN OPENA2A_TELEMETRY=off ${HMA} check-metadata`, 1],
-    [`RUN OPENA2A_TELEMETRY=off \\\n    ${HMA} check-metadata`, 1],
-    [`RUN NODE_ENV=production OPENA2A_TELEMETRY=off ${HMA} check-metadata`, 1],
-    [`RUN OPENA2A_TELEMETRY="off" ${HMA} check-metadata 2>&1 | tee /tmp/check.log`, 1],
-    [`RUN OPENA2A_TELEMETRY='off' >/dev/null ${HMA} check-metadata`, 1],
-    [`RUN env OPENA2A_TELEMETRY=off ${HMA} check-metadata`, 1],
-    ['RUN /usr/bin/env -u HOME OPENA2A_TELEMETRY=off npx -y hackmyagent@latest check-metadata', 1],
-    ['RUN OPENA2A_TELEMETRY=off sh -c "hackmyagent check-metadata"', 1],
-    [`RUN ["env", "OPENA2A_TELEMETRY=off", "${HMA}", "check-metadata"]`, 1],
-    ['RUN if [ -d /app ]; then OPENA2A_TELEMETRY=off hackmyagent check-metadata; fi', 1],
-    [`RUN <<EOF\nnpm ci\nOPENA2A_TELEMETRY=off ${HMA} check-metadata\nEOF`, 1],
+    [`RUN DVAA_TELEMETRY=off ${HMA} check-metadata`, 1],
+    [`RUN DVAA_TELEMETRY=off \\\n    ${HMA} check-metadata`, 1],
+    [`RUN NODE_ENV=production DVAA_TELEMETRY=off ${HMA} check-metadata`, 1],
+    [`RUN DVAA_TELEMETRY="off" ${HMA} check-metadata 2>&1 | tee /tmp/check.log`, 1],
+    [`RUN DVAA_TELEMETRY='off' >/dev/null ${HMA} check-metadata`, 1],
+    [`RUN env DVAA_TELEMETRY=off ${HMA} check-metadata`, 1],
+    ['RUN /usr/bin/env -u HOME DVAA_TELEMETRY=off npx -y hackmyagent@latest check-metadata', 1],
+    ['RUN DVAA_TELEMETRY=off sh -c "hackmyagent check-metadata"', 1],
+    [`RUN ["env", "DVAA_TELEMETRY=off", "${HMA}", "check-metadata"]`, 1],
+    ['RUN if [ -d /app ]; then DVAA_TELEMETRY=off hackmyagent check-metadata; fi', 1],
+    [`RUN <<EOF\nnpm ci\nDVAA_TELEMETRY=off ${HMA} check-metadata\nEOF`, 1],
     // The image build step: a command substitution and a continuation.
-    [`RUN mkdir -p /c && \\\n    V=$(OPENA2A_TELEMETRY=off ${HMA} --version 2>&1 | head -1) && \\\n    OPENA2A_TELEMETRY=off ${HMA} check-metadata > "/c/v\${V}.json"`, 2],
+    [`RUN mkdir -p /c && \\\n    V=$(DVAA_TELEMETRY=off ${HMA} --version 2>&1 | head -1) && \\\n    DVAA_TELEMETRY=off ${HMA} check-metadata > "/c/v\${V}.json"`, 2],
     // Words that are not a call.
     ['RUN mkdir -p /app/.hackmyagent-cache && chown node:node /app/.hackmyagent-cache', 0],
     ['RUN npm ci # hackmyagent runs when the container starts', 0],
@@ -358,12 +358,12 @@ test('the walk reaches the image Dockerfile and the scenario Dockerfiles', () =>
   assert.ok(calls.length > 0, 'no hackmyagent call read from Dockerfile, so its build step is not checked');
 });
 
-test('every hackmyagent call in a Dockerfile RUN step carries OPENA2A_TELEMETRY=off', () => {
+test('every hackmyagent call in a Dockerfile RUN step carries DVAA_TELEMETRY=off', () => {
   const hits = [];
   for (const rel of walk(REPO_ROOT)) {
     for (const call of hackmyagentCalls(fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'))) {
       if (!call.off) hits.push(`${rel}:${call.line}: ${call.text}`);
     }
   }
-  assert.deepEqual(hits, [], `start each call's command with OPENA2A_TELEMETRY=off, on the command and not as an ENV:\n${hits.join('\n')}`);
+  assert.deepEqual(hits, [], `start each call's command with DVAA_TELEMETRY=off, on the command and not as an ENV:\n${hits.join('\n')}`);
 });

@@ -30,7 +30,7 @@ test('live: an early exit (ports in use) leaves no dvaa-flight-* directory behin
     const r = spawnSync(process.execPath, [CLI, 'demo', 'flight', '--json'], {
       encoding: 'utf-8',
       timeout: 30_000,
-      env: { PATH: process.env.PATH, HOME: tmp, TMPDIR: tmp, OPENA2A_TELEMETRY: 'off' },
+      env: { PATH: process.env.PATH, HOME: tmp, TMPDIR: tmp, DVAA_TELEMETRY: 'off' },
     });
     const show = `exit=${r.status}\nstdout: ${r.stdout}\nstderr: ${r.stderr}`;
     assert.equal(r.status, 1, show);

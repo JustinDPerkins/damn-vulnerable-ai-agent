@@ -13,11 +13,11 @@ without writing down why.
 cd damn-vulnerable-ai-agent
 pkill -f "node src/index.js" 2>/dev/null; rm -rf .dvaa .hackmyagent-cache
 git status    # must be clean
-docker build -t opena2a/dvaa:smoke .
+docker build -t jayswakezone/dvaa:smoke .
 docker rm -f dvaa-smoke 2>/dev/null
 docker run -d --name dvaa-smoke \
   -p 127.0.0.1:9000:9000 -p 127.0.0.1:7001-7023:7001-7023 \
-  opena2a/dvaa:smoke
+  jayswakezone/dvaa:smoke
 sleep 5
 curl -s http://localhost:9000/health | jq    # expect {"status":"ok","agents":21,...}
 docker exec dvaa-smoke whoami                # expect "node" (non-root)
@@ -39,7 +39,7 @@ Open the dashboard in a fresh browser (or incognito to avoid stale localStorage)
 | 1.4 | `/#scenarios` | 86 scenario cards. Filter bar works (Auto-fixable narrows to ~10 cards). Progress bar at top shows `0 / 19,400 points`. |
 | 1.5 | `/#attack-log` | Empty state: `0 events`. Filter dropdowns (All agents / categories / results) render. `Clear log` and `Reset all progress` buttons present; `Reset all progress` asks for confirmation first. |
 | 1.6 | `/#stats` | `0 Total Requests`, `0 Attacks Detected`, `0% Success Rate`, uptime ticks. Category bar chart shows all 11 categories at 0/0. |
-| 1.7 | `/#settings` | LLM Configuration card with Provider/API Key/Model. Privacy card with 6 items (telemetry on by default and its opt-outs, BYOK key handling, external requests) and a link to opena2a.org/telemetry. Status reads `LLM mode off (default)`. |
+| 1.7 | `/#settings` | LLM Configuration card with Provider/API Key/Model. Privacy card with 6 items (telemetry on by default and its opt-outs, BYOK key handling, external requests) and a link to github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry. Status reads `LLM mode off (default)`. |
 
 If any page shows a console error, renders empty when data should be present,
 or contains literal `undefined`/`null` strings — fail.
@@ -137,22 +137,22 @@ docker exec dvaa-smoke node_modules/.bin/hackmyagent --version   # current pinne
 
 ## 7. Telemetry — disclosure surfaces and opt-out (2 min)
 
-Tier-1 telemetry shipped with v0.8.1. Verify the four disclosure surfaces and the opt-out paths actually work. **Do not point at the production endpoint while smoking** — set `OPENA2A_TELEMETRY_URL=http://127.0.0.1:1/never` so events go to a port that refuses connections (proves fire-and-forget tolerance) instead of polluting prod aggregates.
+Tier-1 telemetry shipped with v0.8.1. Verify the four disclosure surfaces and the opt-out paths actually work. **Do not point at the production endpoint while smoking** — set `DVAA_TELEMETRY_URL=http://127.0.0.1:1/never` so events go to a port that refuses connections (proves fire-and-forget tolerance) instead of polluting prod aggregates.
 
 ```bash
-export OPENA2A_TELEMETRY_URL=http://127.0.0.1:1/never
-unset OPENA2A_TELEMETRY
-rm -f ~/.config/opena2a/telemetry.json   # start from a clean slate
+export DVAA_TELEMETRY_URL=http://127.0.0.1:1/never
+unset DVAA_TELEMETRY
+rm -f ~/.config/dvaa/telemetry.json   # start from a clean slate
 ```
 
 | # | Command | Expected |
 |---|---------|----------|
-| 7.1 | `dvaa --version` | Two lines: `dvaa <version>` — where `<version>` is the current package version, i.e. the string `node -p "require('./package.json').version"` prints (never a frozen literal; it changes every release) — then `Telemetry: on (opt-out: OPENA2A_TELEMETRY=off  •  details: opena2a.org/telemetry)` |
+| 7.1 | `dvaa --version` | Two lines: `dvaa <version>` — where `<version>` is the current package version, i.e. the string `node -p "require('./package.json').version"` prints (never a frozen literal; it changes every release) — then `Telemetry: on (opt-out: DVAA_TELEMETRY=off  •  details: github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry)` |
 | 7.2 | `dvaa telemetry status` | Prints `state: on`, a UUID install_id, the config path, the policy URL, and the toggle hint |
-| 7.3 | `dvaa telemetry off` | Prints `Telemetry disabled for dvaa.` Then `dvaa --version` shows `Telemetry: off`. `~/.config/opena2a/telemetry.json` has `"enabled": false`. |
+| 7.3 | `dvaa telemetry off` | Prints `Telemetry disabled for dvaa.` Then `dvaa --version` shows `Telemetry: off`. `~/.config/dvaa/telemetry.json` has `"enabled": false`. |
 | 7.4 | `dvaa telemetry on` | Re-enables persistently. |
-| 7.5 | `OPENA2A_TELEMETRY=off dvaa telemetry status` | Shows `state: off` even though file says `on` (env wins). |
-| 7.6 | `OPENA2A_TELEMETRY_DEBUG=print dvaa agents` | Stderr contains a `[opena2a:telemetry]` line with the JSON payload (`tool: "dvaa"`, `event: "command"`, `name: "agents"`, `success: true`, `duration_ms: <int>`, no PII fields). |
+| 7.5 | `DVAA_TELEMETRY=off dvaa telemetry status` | Shows `state: off` even though file says `on` (env wins). |
+| 7.6 | `DVAA_TELEMETRY_DEBUG=print dvaa agents` | Stderr contains a `[jwz:telemetry]` line with the JSON payload (`tool: "dvaa"`, `event: "command"`, `name: "agents"`, `success: true`, `duration_ms: <int>`, no PII fields). |
 | 7.7 | `dvaa agents` (with the unreachable URL) | Command completes normally and exits 0. The unreachable telemetry endpoint must not slow the command perceptibly (≤2s timeout). |
 
 Fail the release if:
@@ -167,9 +167,9 @@ Fail the release if:
 docker rm -f dvaa-smoke
 pkill -f "node src/index.js" 2>/dev/null
 rm -rf .dvaa .hackmyagent-cache
-unset OPENA2A_TELEMETRY_URL
+unset DVAA_TELEMETRY_URL
 # Restore your real telemetry config if you had one — the tests above
-# overwrite ~/.config/opena2a/telemetry.json.
+# overwrite ~/.config/dvaa/telemetry.json.
 ```
 
 ---

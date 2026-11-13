@@ -16,7 +16,7 @@ import runHma from './commands/hma.js';
 import runTelemetry from './commands/telemetry.js';
 import runDemo from './commands/demo.js';
 import runChat from './commands/chat.js';
-import * as tele from '@opena2a/telemetry';
+import * as tele from '../lib/telemetry.js';
 
 const COMMANDS = {
   agents:    { run: runAgents,    summary: 'List DVAA agents with port, protocol, and security level.' },
@@ -65,7 +65,7 @@ export async function dispatch(argv) {
     void tele.track(name, {
       // Exit 1 = scenario triggered (dvaa's job is to demonstrate the
       // attack, exit 1 signals "demo ran, attack landed"); exit >=2 is
-      // a real crash. Matches @opena2a/telemetry.successFromExitCode
+      // a real crash. Matches ./src/lib/telemetry.js.successFromExitCode
       // (post-0.2.0) which will replace this inline check once the
       // dep pin bumps.
       success: (exitCode ?? 0) <= 1,

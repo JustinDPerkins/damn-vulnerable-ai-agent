@@ -78,7 +78,7 @@ captures repo. No credentials are embedded in the tool, so the timestamp and
 history are verifiable on GitHub:
 
 ```
-git clone https://github.com/opena2a-org/dvaa-demo-captures
+git clone https://github.com/JustinDPerkins/dvaa-demo-captures
 cd dvaa-demo-captures
 npx --package damn-vulnerable-ai-agent dvaa demo flight --live --json | ./record.sh
 git add -A && git commit -m "capture $(date -u +%FT%TZ)" && git push

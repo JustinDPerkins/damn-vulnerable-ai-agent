@@ -360,10 +360,10 @@ test('NO subprocess this demo starts inherits the whole environment', () => {
     ANTHROPIC_API_KEY: 'x', OPENAI_API_KEY: 'x', GITHUB_TOKEN: 'x', AWS_ACCESS_KEY_ID: 'x',
     AWS_SECRET_ACCESS_KEY: 'x', DATABASE_URL: 'x', NPM_TOKEN: 'x',
   };
-  const child = fleetEnv({ DVAA_AIM_DATA_DIR: '/tmp/x', OPENA2A_TELEMETRY: 'off' }, shell);
+  const child = fleetEnv({ DVAA_AIM_DATA_DIR: '/tmp/x', DVAA_TELEMETRY: 'off' }, shell);
   assert.deepEqual(
     Object.keys(child).sort(),
-    ['AIM_ENFORCEMENT', 'DVAA_AIM_DATA_DIR', 'HOME', 'OPENA2A_TELEMETRY', 'PATH'],
+    ['AIM_ENFORCEMENT', 'DVAA_AIM_DATA_DIR', 'HOME', 'DVAA_TELEMETRY', 'PATH'],
     `the fleet env must carry the allowlist and the demo's own settings only, got ${Object.keys(child).join(', ')}`,
   );
 

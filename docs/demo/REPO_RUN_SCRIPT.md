@@ -112,7 +112,7 @@ with every release, and a stale figure on a slide is the kind of claim this talk
 is about. Check #435 for the current state of the routing work before you say
 anything about what is or is not detected.
 
-[435]: https://github.com/opena2a-org/hackmyagent/issues/435
+[435]: https://github.com/JustinDPerkins/hackmyagent/issues/435
 
 ## Reset between runs
 

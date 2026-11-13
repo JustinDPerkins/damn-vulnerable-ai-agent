@@ -1,9 +1,9 @@
 services:
   dvaa:
     build: .
-    # Passes the shell's OPENA2A_TELEMETRY into the container only when it is set.
+    # Passes the shell's DVAA_TELEMETRY into the container only when it is set.
     environment:
-      - OPENA2A_TELEMETRY
+      - DVAA_TELEMETRY
       # Free local LLM (requires --profile llm and a pulled model)
       - DVAA_LLM_PROVIDER=${DVAA_LLM_PROVIDER:-}
       - DVAA_LLM_MODEL=${DVAA_LLM_MODEL:-llama3.2}

@@ -4,13 +4,13 @@
  * src/dashboard/scanner.js runs HackMyAgent for two callers, and they differ.
  * The dashboard server counts a scan or fix under DVAA's own `lab-scan` or
  * `lab-fix` action, so it asks runScan for `hmaTelemetryOff: true` and every
- * HackMyAgent child behind the request runs with OPENA2A_TELEMETRY=off.
+ * HackMyAgent child behind the request runs with DVAA_TELEMETRY=off.
  * `dvaa scan` asks for nothing: README §Telemetry lists it among the runs that
  * send HackMyAgent's own events, so every child it starts receives the
- * parent's OPENA2A_TELEMETRY as it is, unset included.
+ * parent's DVAA_TELEMETRY as it is, unset included.
  *
  * Both callers run for real, from a copy of src/ whose
- * node_modules/.bin/hackmyagent is a stub that records the OPENA2A_TELEMETRY
+ * node_modules/.bin/hackmyagent is a stub that records the DVAA_TELEMETRY
  * value each invocation received. A copy is needed because src/cli/hma.js
  * looks for HackMyAgent by walking up from its own directory, so code run from
  * the checkout always finds the real one. The copy's other node_modules
@@ -20,7 +20,7 @@
  *
  * Nothing here sends telemetry. The stub sends nothing, the dashboard server
  * gets a no-op `track`, and each `dvaa scan` run reads a sandbox telemetry
- * config with `enabled: false`; OPENA2A_TELEMETRY_URL points at a closed
+ * config with `enabled: false`; DVAA_TELEMETRY_URL points at a closed
  * loopback port in case that config is not read.
  */
 
@@ -35,7 +35,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const NAME = 'llm-exposed-ollama';
-const VAR = 'OPENA2A_TELEMETRY';
+const VAR = 'DVAA_TELEMETRY';
 // Synthetic install ID for the sandbox telemetry config of the `dvaa scan` runs.
 const SANDBOX_INSTALL_ID = '00000000-0000-4000-8000-000000000003';
 
@@ -44,7 +44,7 @@ const PARENT_STATES = [
   { label: 'set to a sentinel', value: 'parent-sentinel' },
 ];
 
-// Sets the parent's OPENA2A_TELEMETRY for one test (undefined = unset) and
+// Sets the parent's DVAA_TELEMETRY for one test (undefined = unset) and
 // restores the test command's own value afterwards.
 function setParentTelemetry(t, value) {
   const had = VAR in process.env;
@@ -68,7 +68,7 @@ function assertParentUnchanged(value) {
 // A copy of the package with a stub HackMyAgent. src/, package.json and one
 // scenario are copied; node_modules/.bin holds only the stub, and every other
 // node_modules entry links to the checkout's. Each stub invocation appends its
-// argv and the OPENA2A_TELEMETRY value it received (null when unset) to
+// argv and the DVAA_TELEMETRY value it received (null when unset) to
 // calls.log, then answers like HackMyAgent.
 function makeTree(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dvaa-hma-callers-'));
@@ -170,12 +170,12 @@ function post(port, route) {
   });
 }
 
-// Runs the copy's CLI with the parent's OPENA2A_TELEMETRY set to `value`
+// Runs the copy's CLI with the parent's DVAA_TELEMETRY set to `value`
 // (undefined = unset). DVAA's own telemetry is off through the sandbox config.
 function runDvaa(root, args, value) {
   const sandbox = path.join(root, 'sandbox');
   const config = JSON.stringify({ enabled: false, installId: SANDBOX_INSTALL_ID }) + '\n';
-  for (const dir of [path.join(sandbox, 'opena2a'), path.join(sandbox, '.config', 'opena2a')]) {
+  for (const dir of [path.join(sandbox, 'jwz'), path.join(sandbox, '.config', 'jwz')]) {
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'telemetry.json'), config);
   }
@@ -183,7 +183,7 @@ function runDvaa(root, args, value) {
     ...process.env,
     HOME: sandbox,
     XDG_CONFIG_HOME: sandbox,
-    OPENA2A_TELEMETRY_URL: 'http://127.0.0.1:1/',
+    DVAA_TELEMETRY_URL: 'http://127.0.0.1:1/',
     NO_COLOR: '1',
   };
   if (value === undefined) delete env[VAR];

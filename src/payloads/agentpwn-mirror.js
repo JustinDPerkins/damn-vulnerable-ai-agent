@@ -5,7 +5,7 @@
  * file is a manual mirror. Re-sync from the source if the upstream entry
  * changes; the sync date is below.
  *
- * Source: opena2a-org/agentpwn/src/lib/payloads/templates.ts
+ * Source: JustinDPerkins/agentpwn/src/lib/payloads/templates.ts
  * Synced: 2026-05-24
  */
 

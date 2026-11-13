@@ -40,7 +40,7 @@ export default async function run(argv) {
   }
   // The demo's contract is "local and offline - no cloud service in the path".
   // Telemetry suppression for `demo` is applied in src/index.js BEFORE
-  // tele.init() snapshots the opt-out config - setting OPENA2A_TELEMETRY here
+  // tele.init() snapshots the opt-out config - setting DVAA_TELEMETRY here
   // would be too late (init already ran), so it is handled at process entry.
   const scenario = positional[0] || 'aim-ab';
   if (scenario === 'flight') {
@@ -204,7 +204,7 @@ async function prepareCloud() {
   }
   const apiBase = resolveApiBase(creds.aimUrl);
   if (!isSafeApiBase(apiBase)) {
-    warn(`refusing to send your AIM token to an insecure backend (${apiBase}).`, 'Use an https URL (or localhost), e.g. AIM_SERVER_URL=https://api.aim.opena2a.org');
+    warn(`refusing to send your AIM token to an insecure backend (${apiBase}).`, 'Use an https URL (or localhost), e.g. AIM_SERVER_URL=https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent');
     return null;
   }
   if (!(await checkHealth(apiBase))) {
@@ -216,9 +216,9 @@ async function prepareCloud() {
   // uses, so the verification signature matches the registered public key.
   let AIMCore;
   try {
-    ({ AIMCore } = await import('@opena2a/aim-core'));
+    ({ AIMCore } = await import('aim-core'));
   } catch (e) {
-    warn('could not load @opena2a/aim-core.', e.message);
+    warn('could not load aim-core.', e.message);
     return null;
   }
   const dataDir = path.join(

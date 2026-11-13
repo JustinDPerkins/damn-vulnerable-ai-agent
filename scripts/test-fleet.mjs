@@ -91,7 +91,7 @@ function record(chunk) {
 
 const fleet = spawn(process.execPath, [path.join(REPO, 'src', 'index.js'), '--all'], {
   cwd: workDir,
-  env: fleetEnv({ OPENA2A_TELEMETRY: 'off' }),
+  env: fleetEnv({ DVAA_TELEMETRY: 'off' }),
   stdio: ['ignore', 'pipe', 'pipe'],
   detached: GROUP,
 });
@@ -159,7 +159,7 @@ async function waitForFleet() {
 }
 
 function runTests() {
-  const env = { ...process.env, OPENA2A_TELEMETRY: 'off' };
+  const env = { ...process.env, DVAA_TELEMETRY: 'off' };
   for (const key of ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'DVAA_HOST']) delete env[key];
   return new Promise((resolve) => {
     runner = spawn(process.execPath, ['--test', ...testArgs], { cwd: REPO, env, stdio: 'inherit' });

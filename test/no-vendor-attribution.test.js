@@ -15,7 +15,7 @@
  *        does not fire on the benign shapes that sit next to it.
  *
  * The vendor name as the grammatical OBJECT of a line is a different thing and
- * is deliberately left alone: `uses: opena2a-org/.github/actions/claude-review@<sha>`
+ * is deliberately left alone: `uses: JustinDPerkins/.github/actions/claude-review@<sha>`
  * is a repository path, and rewriting it would make the line false. AC3's
  * predicate is the old context name literally and only, so that line is not
  * matched and needs no allowlist.
@@ -179,7 +179,7 @@ test('nothing else in pr-review.yml moved', () => {
   assert.equal(lines[32], '  review:', 'the job id stays `review`');
   assert.equal(
     lines[151],
-    '        uses: opena2a-org/.github/actions/claude-review@025b1897886f261c12ccc79da3f75d345842c897',
+    '        uses: JustinDPerkins/.github/actions/claude-review@025b1897886f261c12ccc79da3f75d345842c897',
     'the shared model call stays SHA-pinned, on the same SHA',
   );
 

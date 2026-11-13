@@ -1,7 +1,7 @@
 /**
  * AIM capability enforcement for DVAA agents flagged `aimEnforced: true`.
  *
- * Backed by `@opena2a/aim-core` (local-first: file-backed Ed25519 identity,
+ * Backed by `aim-core` (local-first: file-backed Ed25519 identity,
  * JSON-lines audit log, capability policy, trust scoring). No server, no
  * API key. Identity / audit log / policy live under
  *   <DVAA_AIM_DATA_DIR or .dvaa-aim>/<agent.id>
@@ -15,7 +15,7 @@
 
 import path from 'path';
 import fs from 'fs';
-import { AIMCore } from '@opena2a/aim-core';
+import { AIMCore } from 'aim-core';
 import { cloudReporterEnabled, cloudAgentIdFor, cloudAgentIdVar, postVerification } from './aim-cloud-reporter.js';
 
 const ENFORCEMENT_OFF = () => String(process.env.AIM_ENFORCEMENT || '').toLowerCase() === 'off';

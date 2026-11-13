@@ -1,7 +1,7 @@
 /**
  * VULNERABLE enforcement engine.
  *
- * Demonstrates the threshold-bypass pattern from OPENA2A-IB-007:
+ * Demonstrates the threshold-bypass pattern from LAB-IB-007:
  *
  *   1. Parses a bash pipeline subcommand-by-subcommand.
  *   2. Checks each subcommand against an allow-list.

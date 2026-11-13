@@ -6,7 +6,7 @@ import { el } from '../utils.js';
 import { configureLLM, disableLLM } from '../api.js';
 
 const PRIVACY_FACTS = [
-  'This lab build defaults telemetry off via OPENA2A_TELEMETRY=off when you start with that env (recommended).',
+  'This lab build defaults telemetry off via DVAA_TELEMETRY=off when you start with that env (recommended).',
   'LLM mode: your API key (if any) stays in memory on this local server and is sent only to the provider you chose '
     + '(Ollama, OpenAI, or Anthropic). It is not written to disk. Disable or restart to clear it.',
   'While LLM mode is on, agent conversations and tutor requests go to that provider.',

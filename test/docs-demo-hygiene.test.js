@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DOCS_DIR = path.join(REPO_ROOT, 'docs');
 const SCRIPT = path.join(DOCS_DIR, 'demo', 'setup-aim-local.sh');
-const ADMIN_EMAIL = 'admin@opena2a.org';
+const ADMIN_EMAIL = 'admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent';
 
 const BINARY_EXTENSIONS = new Set(['.png', '.gif', '.jpg', '.jpeg', '.webp', '.ico']);
 

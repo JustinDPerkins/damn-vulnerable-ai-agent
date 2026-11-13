@@ -23,6 +23,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: opena2a/dvaa
+          repository: jayswakezone/dvaa
           readme-filepath: ./DOCKER_README.md
           short-description: "Damn Vulnerable AI Agent: intentionally vulnerable AI agents for security testing and red-teaming"

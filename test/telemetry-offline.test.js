@@ -1,14 +1,14 @@
 /**
  * Regression test for the offline/telemetry guarantee.
  *
- * `@opena2a/telemetry` snapshots the opt-out config inside tele.init(), so the
- * OPENA2A_TELEMETRY env var must be set BEFORE init runs (src/index.js, at
+ * `./src/lib/telemetry.js` snapshots the opt-out config inside tele.init(), so the
+ * DVAA_TELEMETRY env var must be set BEFORE init runs (src/index.js, at
  * process entry) - setting it later (a flag parsed after init, or inside the
  * demo command) is too late and telemetry still fires. This test pins that:
  * the demo command and --offline produce ZERO telemetry posts, while a normal
  * trackable command still posts (proving the mock harness actually observes them).
  *
- * Spawns the real CLI with OPENA2A_TELEMETRY_URL pointed at a local mock so no
+ * Spawns the real CLI with DVAA_TELEMETRY_URL pointed at a local mock so no
  * real telemetry endpoint is contacted, and with the per-machine telemetry
  * config redirected into a throwaway sandbox so the suite measures DVAA's
  * opt-out logic rather than whatever the operator's own machine has persisted.
@@ -32,8 +32,8 @@ const CLI = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src',
 // Base env that starts from "telemetry on by default" (no inherited opt-out).
 function baseEnv(overrides = {}) {
   const e = { ...process.env };
-  delete e.OPENA2A_TELEMETRY;
-  delete e.OPENA2A_TELEMETRY_DEBUG;
+  delete e.DVAA_TELEMETRY;
+  delete e.DVAA_TELEMETRY_DEBUG;
   return { ...e, ...overrides };
 }
 
@@ -47,12 +47,12 @@ function baseEnv(overrides = {}) {
 // happened.
 const SEED_INSTALL_ID = '00000000-0000-4000-8000-000000000001';
 
-// `$XDG_CONFIG_HOME/opena2a/` is where the SDK looks when XDG is set;
-// `$HOME/.config/opena2a/` is where it looks when it is not. Both are seeded so
+// `$XDG_CONFIG_HOME/jwz/` is where the SDK looks when XDG is set;
+// `$HOME/.config/dvaa/` is where it looks when it is not. Both are seeded so
 // the sandbox survives that path moving.
 function seedSandboxConfig(root) {
   const cfg = JSON.stringify({ enabled: true, installId: SEED_INSTALL_ID }) + '\n';
-  for (const dir of [path.join(root, 'opena2a'), path.join(root, '.config', 'opena2a')]) {
+  for (const dir of [path.join(root, 'jwz'), path.join(root, '.config', 'jwz')]) {
     mkdirSync(dir, { recursive: true });
     writeFileSync(path.join(dir, 'telemetry.json'), cfg, { mode: 0o600 });
   }
@@ -66,7 +66,7 @@ function runWithTelemetryMock(args, env) {
     // Without this the suite measured the OPERATOR'S machine, not DVAA. The SDK
     // resolves `enabled` as `!envOptOut && fileEnabled` against a persisted
     // config file, so on any machine where someone has run `telemetry off` - or
-    // where any other OpenA2A tool sharing that file has - `fileEnabled` is
+    // where any other JaysWakeZone tool sharing that file has - `fileEnabled` is
     // false, every spawn below posts nothing, and `hits` is structurally 0. The
     // two `hits === 0` assertions then pass for a reason that has nothing to do
     // with the offline guarantee they exist to verify, and the control is the
@@ -97,7 +97,7 @@ function runWithTelemetryMock(args, env) {
       const child = spawn('node', [CLI, ...args], {
         env: {
           ...env,
-          OPENA2A_TELEMETRY_URL: `http://127.0.0.1:${port}/ev`,
+          DVAA_TELEMETRY_URL: `http://127.0.0.1:${port}/ev`,
           XDG_CONFIG_HOME: sandbox,
           HOME: sandbox,
         },
@@ -143,7 +143,7 @@ async function run(args, env) {
 }
 
 test('control: a trackable command posts telemetry when enabled (harness sanity)', async () => {
-  const { hits } = await run(['agents'], baseEnv({ OPENA2A_TELEMETRY: 'on' }));
+  const { hits } = await run(['agents'], baseEnv({ DVAA_TELEMETRY: 'on' }));
   assert.ok(hits >= 1, `expected >=1 telemetry post when enabled, got ${hits}`);
 });
 
@@ -158,7 +158,7 @@ test('--offline suppresses telemetry on a trackable command', async () => {
 });
 
 // Named for what it actually proves. It used to be called "operator can opt back
-// in for the demo via explicit OPENA2A_TELEMETRY=on", and that is not true: the
+// in for the demo via explicit DVAA_TELEMETRY=on", and that is not true: the
 // SDK's envOptOut() matches only off|0|false|no, so the env var can disable
 // telemetry and can never enable it. An operator whose persisted config says
 // enabled:false cannot opt back in with it, whatever this file is called.
@@ -167,8 +167,8 @@ test('--offline suppresses telemetry on a trackable command', async () => {
 // guard in src/index.js, which makes `demo` skip its automatic opt-out when the
 // operator has set the variable explicitly. The telemetry that then flows is the
 // default-on config doing so, not the env var switching anything on.
-// Tracked as opena2a-org/opena2a#293.
-test('an explicit OPENA2A_TELEMETRY value suppresses the demo auto-opt-out', async () => {
-  const { hits } = await run(['demo', '--help'], baseEnv({ OPENA2A_TELEMETRY: 'on' }));
+// Tracked as JustinDPerkins/jwz#293.
+test('an explicit DVAA_TELEMETRY value suppresses the demo auto-opt-out', async () => {
+  const { hits } = await run(['demo', '--help'], baseEnv({ DVAA_TELEMETRY: 'on' }));
   assert.ok(hits >= 1, `demo must not force telemetry off when the operator set it, got ${hits}`);
 });

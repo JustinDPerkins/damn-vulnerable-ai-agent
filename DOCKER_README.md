@@ -7,7 +7,7 @@ DVAA is an intentionally vulnerable AI agent platform for learning, red-teaming,
 - **Learn:** 22 CTF-style challenges across 4 levels, 5,900 points in total
 - **Attack:** practice prompt injection, jailbreaking, data exfiltration, and more
 - **Defend:** test your own system prompts against attack payloads in the Prompt Playground
-- **Validate:** use as a target for security scanners like [HackMyAgent](https://github.com/opena2a-org/hackmyagent)
+- **Validate:** use as a target for security scanners like [HackMyAgent](https://github.com/JustinDPerkins/hackmyagent)
 
 > **Warning:** DVAA is intentionally insecure. DO NOT deploy in production or expose to the internet.
 
@@ -17,7 +17,7 @@ DVAA is an intentionally vulnerable AI agent platform for learning, red-teaming,
 docker run -d --name dvaa \
   -p 127.0.0.1:9000:9000 \
   -p 127.0.0.1:7001-7021:7001-7021 \
-  opena2a/dvaa:0.9.2
+  jayswakezone/dvaa:0.9.2
 ```
 
 Open the dashboard at [http://localhost:9000](http://localhost:9000).
@@ -33,7 +33,7 @@ Two newer agents, RepoBot (`7022`) and RepoBot-AIM (`7023`), are on the main bra
 ### Docker Compose
 
 ```bash
-git clone https://github.com/opena2a-org/damn-vulnerable-ai-agent.git
+git clone https://github.com/JustinDPerkins/damn-vulnerable-ai-agent.git
 cd damn-vulnerable-ai-agent
 docker compose up
 ```
@@ -183,7 +183,7 @@ The image's default `CMD` starts every agent and the dashboard together; no `dva
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HOST_PORT_OFFSET` | `0` | Add this offset to every agent port displayed in the dashboard. Use when remapping container ports to different host ports (see Troubleshooting). |
-| `OPENA2A_TELEMETRY` | unset (telemetry on) | `off`, `0`, `false`, or `no` turns off usage telemetry. |
+| `DVAA_TELEMETRY` | unset (telemetry on) | `off`, `0`, `false`, or `no` turns off usage telemetry. |
 | `AIM_ENFORCEMENT` | unset (enforced) | `off` runs the AIM-enforced agents on the same code path without AIM enforcement. |
 
 The server also reads `AIM_SERVER_URL`, `AIM_API_KEY`, and `DVAA_AIM_CLOUD_AGENT_ID` (AIM cloud reporting), `DVAA_AIM_DATA_DIR` (AIM agent data directory), `DVAA_ALLOW_INTERNAL_FETCH` and `DVAA_RESEARCH_CACHE` (web fetch for the research and flight agents), and `DVAA_DEBUG` and `DVAA_AIM_CLOUD_DEBUG` (debug output).
@@ -197,7 +197,7 @@ The server also reads `AIM_SERVER_URL`, `AIM_API_KEY`, and `DVAA_AIM_CLOUD_AGENT
 docker run -d -e HOST_PORT_OFFSET=500 \
   -p 127.0.0.1:9000:9000 \
   -p 127.0.0.1:7501-7521:7001-7021 \
-  opena2a/dvaa:0.9.2
+  jayswakezone/dvaa:0.9.2
 ```
 
 `HOST_PORT_OFFSET` affects only what the dashboard **displays** (test commands, agent URLs). The container still binds internally to its agent ports (`7001-7021` on 0.9.2). Remapping with `-p 127.0.0.1:8001:7001` without setting the env var will leave the dashboard telling users to hit `7001` while the agent is actually on `8001`.
@@ -209,11 +209,11 @@ docker run -d -e HOST_PORT_OFFSET=500 \
 
 ## Links
 
-- **Source Code:** [github.com/opena2a-org/damn-vulnerable-ai-agent](https://github.com/opena2a-org/damn-vulnerable-ai-agent)
-- **Issues:** [GitHub Issues](https://github.com/opena2a-org/damn-vulnerable-ai-agent/issues)
-- **HackMyAgent:** [github.com/opena2a-org/hackmyagent](https://github.com/opena2a-org/hackmyagent)
+- **Source Code:** [github.com/JustinDPerkins/damn-vulnerable-ai-agent](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent)
+- **Issues:** [GitHub Issues](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/issues)
+- **HackMyAgent:** [github.com/JustinDPerkins/hackmyagent](https://github.com/JustinDPerkins/hackmyagent)
 - **OASB:** [oasb.ai](https://oasb.ai)
-- **OpenA2A:** [opena2a.org](https://opena2a.org)
+- **JaysWakeZone:** [github.com/JustinDPerkins/damn-vulnerable-ai-agent](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent)
 - **Discord:** [discord.gg/uRZa3KXgEn](https://discord.gg/uRZa3KXgEn)
 
 ## License

@@ -67,7 +67,7 @@ async function attack(port, marker) {
   await res.text();
 }
 
-const cliEnv = () => ({ PATH: process.env.PATH, HOME: os.tmpdir(), OPENA2A_TELEMETRY: 'off', NO_COLOR: '1' });
+const cliEnv = () => ({ PATH: process.env.PATH, HOME: os.tmpdir(), DVAA_TELEMETRY: 'off', NO_COLOR: '1' });
 
 // Split a stream of concatenated JSON values (one array per poll) apart.
 function splitJsonValues(text) {

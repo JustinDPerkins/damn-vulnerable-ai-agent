@@ -204,24 +204,24 @@ test('the pattern flags a publish with no host address in the forms it covers', 
   const p = '-p';
   const pub = `-${p}ublish`;
   const cases = [
-    [`docker run ${p} 9000:9000 opena2a/dvaa`, '9000:9000'],
-    [`Or: docker run ${p} 7001-7008:7001-7008 opena2a/dvaa`, '7001-7008:7001-7008'],
+    [`docker run ${p} 9000:9000 jayswakezone/dvaa`, '9000:9000'],
+    [`Or: docker run ${p} 7001-7008:7001-7008 jayswakezone/dvaa`, '7001-7008:7001-7008'],
     [`"${p} 7010-7013:7010-7013 "`, '7010-7013:7010-7013'],
-    [`docker run ${pub}=9000:9000 opena2a/dvaa`, '9000:9000'],
-    [`docker run ${pub} 9000:9000 opena2a/dvaa`, '9000:9000'],
+    [`docker run ${pub}=9000:9000 jayswakezone/dvaa`, '9000:9000'],
+    [`docker run ${pub} 9000:9000 jayswakezone/dvaa`, '9000:9000'],
     // A container port alone: docker picks a random host port on every interface.
-    [`docker run ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker run ${pub}=9000 opena2a/dvaa`, '9000'],
-    [`docker run ${p} 9000/tcp opena2a/dvaa`, '9000'],
-    [`podman run ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker create ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker container run ${pub}=9000 opena2a/dvaa`, '9000'],
+    [`docker run ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker run ${pub}=9000 jayswakezone/dvaa`, '9000'],
+    [`docker run ${p} 9000/tcp jayswakezone/dvaa`, '9000'],
+    [`podman run ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker create ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker container run ${pub}=9000 jayswakezone/dvaa`, '9000'],
     // A mapping followed by punctuation or prose.
     [`docker run ${p} 9000:9000: the agent answers on 9000`, '9000:9000'],
     [`a ${p} 9000:9000-style mapping`, '9000:9000'],
     // A value attached to the flag.
-    [`docker run ${p}9000:9000 opena2a/dvaa`, '9000:9000'],
-    [`docker run ${p}=9000:9000 opena2a/dvaa`, '9000:9000'],
+    [`docker run ${p}9000:9000 jayswakezone/dvaa`, '9000:9000'],
+    [`docker run ${p}=9000:9000 jayswakezone/dvaa`, '9000:9000'],
     // The flag after markup or punctuation.
     [`Use **${p} 9000:9000** here.`, '9000:9000'],
     [`<code>${p} 9000:9000</code>`, '9000:9000'],
@@ -229,25 +229,25 @@ test('the pattern flags a publish with no host address in the forms it covers', 
     [`|${p} 9000:9000|`, '9000:9000'],
     [`Publish it with docker run ${p} 9000.`, '9000'],
     // The argv-array form.
-    [`spawn("docker", ["run", "${p}", "9000:9000", "opena2a/dvaa"])`, '9000:9000'],
+    [`spawn("docker", ["run", "${p}", "9000:9000", "jayswakezone/dvaa"])`, '9000:9000'],
     [`subprocess.run(['docker', 'run', '${pub}', '7001-7008:7001-7008'])`, '7001-7008:7001-7008'],
     [`["run", "${p}9000:9000"]`, '9000:9000'],
     // A container port alone after global options, compose run, in argv form,
     // or after a quoted argument that holds `;` or `|` (#144).
-    [`docker --context remote run ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker -H tcp://host:2375 run ${p} 9000 opena2a/dvaa`, '9000'],
-    [`podman --remote run ${p} 9000 opena2a/dvaa`, '9000'],
+    [`docker --context remote run ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker -H tcp://host:2375 run ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`podman --remote run ${p} 9000 jayswakezone/dvaa`, '9000'],
     [`docker compose run ${p} 9000 dvaa`, '9000'],
     [`spawn("docker", ["run", "${p}", "9000"])`, '9000'],
     [`execFile('docker',['run','${p}','9000'])`, '9000'],
-    [`docker run -e "A=b;c" ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker run --label 'a|b' ${p} 9000 opena2a/dvaa`, '9000'],
+    [`docker run -e "A=b;c" ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker run --label 'a|b' ${p} 9000 jayswakezone/dvaa`, '9000'],
     // A quoted global-option value is taken whole; an option never takes
     // another option as its value.
-    [`docker --context "remote" run ${p} 9000 opena2a/dvaa`, '9000'],
+    [`docker --context "remote" run ${p} 9000 jayswakezone/dvaa`, '9000'],
     [`docker compose -f "a b.yml" run ${p} 9000 dvaa`, '9000'],
-    [`docker --debug --context remote run ${p} 9000 opena2a/dvaa`, '9000'],
-    [`docker -H tcp://docker-host:2375 run ${p} 9000 opena2a/dvaa`, '9000'],
+    [`docker --debug --context remote run ${p} 9000 jayswakezone/dvaa`, '9000'],
+    [`docker -H tcp://docker-host:2375 run ${p} 9000 jayswakezone/dvaa`, '9000'],
   ];
   for (const [line, value] of cases) {
     assert.deepEqual(findHits(line), [value], `not flagged as it should be: ${line}`);
@@ -256,14 +256,14 @@ test('the pattern flags a publish with no host address in the forms it covers', 
 
 test('the pattern passes a publish that names a host address', () => {
   const lines = [
-    'docker run -p 127.0.0.1:9000:9000 opena2a/dvaa',
-    'docker run -p 127.0.0.1:7001-7008:7001-7008 opena2a/dvaa',
-    'docker run --publish=127.0.0.1:9000:9000 opena2a/dvaa',
-    'spawn("docker", ["run", "-p", "127.0.0.1:9000:9000", "opena2a/dvaa"])',
-    '/docker run --rm -p 127\\.0\\.0\\.1:9000:9000 opena2a\\/dvaa/',
+    'docker run -p 127.0.0.1:9000:9000 jayswakezone/dvaa',
+    'docker run -p 127.0.0.1:7001-7008:7001-7008 jayswakezone/dvaa',
+    'docker run --publish=127.0.0.1:9000:9000 jayswakezone/dvaa',
+    'spawn("docker", ["run", "-p", "127.0.0.1:9000:9000", "jayswakezone/dvaa"])',
+    '/docker run --rm -p 127\\.0\\.0\\.1:9000:9000 jwz\\/dvaa/',
     // An explicit all-interfaces host is a deliberate choice, not an omission.
-    'docker run -p 0.0.0.0:9000:9000 opena2a/dvaa',
-    'docker run -p [::]:9000:9000 opena2a/dvaa',
+    'docker run -p 0.0.0.0:9000:9000 jayswakezone/dvaa',
+    'docker run -p [::]:9000:9000 jayswakezone/dvaa',
     'mkdir -p 2026-10-07',
   ];
   for (const line of lines) {
@@ -281,9 +281,9 @@ test('the pattern passes -p <number> options that are not a docker or podman run
     'docker run --rm mysql:8 mysql -uroot -p1234',
     'docker exec web ps -p 1',
     'docker compose -p 2026 up',
-    'docker run --rm opena2a/dvaa && ssh -p 2222 user@host',
-    'docker run --rm opena2a/dvaa; ssh -p 2222 user@host',
-    'docker run --rm opena2a/dvaa | nc -l -p 4444',
+    'docker run --rm jayswakezone/dvaa && ssh -p 2222 user@host',
+    'docker run --rm jayswakezone/dvaa; ssh -p 2222 user@host',
+    'docker run --rm jayswakezone/dvaa | nc -l -p 4444',
     // A date is not a port range (#144).
     'docker run --rm busybox mkdir -p 2026-10-07',
     // A separator is never the value of a global option.

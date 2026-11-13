@@ -2,7 +2,7 @@
   "name": "agent-thresh-01-vulnerable",
   "version": "0.0.1",
   "private": true,
-  "description": "Vulnerable policy-enforcement engine demonstrating threshold bypass (OPENA2A-IB-007 / OASB-SEC-021).",
+  "description": "Vulnerable policy-enforcement engine demonstrating threshold bypass (LAB-IB-007 / OASB-SEC-021).",
   "main": "enforcement-engine.js",
   "scripts": {
     "demo": "node attack-demo.js"

@@ -28,10 +28,10 @@ after(() => {
 });
 
 test('isSafeApiBase rejects plaintext to a remote host and bad schemes', () => {
-  assert.equal(isSafeApiBase('https://api.aim.opena2a.org'), true);
+  assert.equal(isSafeApiBase('https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'), true);
   assert.equal(isSafeApiBase('http://localhost:8080'), true);
   assert.equal(isSafeApiBase('http://127.0.0.1:8080'), true);
-  assert.equal(isSafeApiBase('http://api.aim.opena2a.org'), false); // plaintext to remote -> refuse
+  assert.equal(isSafeApiBase('http://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'), false); // plaintext to remote -> refuse
   assert.equal(isSafeApiBase('http://evil.example.com'), false);
   assert.equal(isSafeApiBase('file:///etc/passwd'), false);
   assert.equal(isSafeApiBase('ftp://host'), false);
@@ -41,21 +41,21 @@ test('isSafeApiBase rejects plaintext to a remote host and bad schemes', () => {
 test('readLoginCredentials parses the aim-sdk login file', () => {
   const dir = makeTmpDir('aim-cred-');
   const f = path.join(dir, 'creds.json');
-  fs.writeFileSync(f, JSON.stringify({ accessToken: 'jwt-123', aimUrl: 'https://aim.opena2a.org/', userEmail: 'a@b.c' }));
+  fs.writeFileSync(f, JSON.stringify({ accessToken: 'jwt-123', aimUrl: 'https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent/', userEmail: 'a@b.c' }));
   const c = readLoginCredentials(f);
   assert.equal(c.accessToken, 'jwt-123');
-  assert.equal(c.aimUrl, 'https://aim.opena2a.org'); // trailing slash stripped
+  assert.equal(c.aimUrl, 'https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'); // trailing slash stripped
   assert.equal(c.userEmail, 'a@b.c');
   assert.equal(readLoginCredentials(path.join(dir, 'missing.json')), null);
 });
 
 test('resolveApiBase maps frontend host -> api backend host', () => {
   delete process.env.AIM_SERVER_URL;
-  assert.equal(resolveApiBase('https://aim.opena2a.org'), 'https://api.aim.opena2a.org');
-  assert.equal(resolveApiBase('https://api.aim.opena2a.org'), 'https://api.aim.opena2a.org');
+  assert.equal(resolveApiBase('https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'), 'https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent');
+  assert.equal(resolveApiBase('https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'), 'https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent');
   assert.equal(resolveApiBase('http://localhost:3000'), 'http://localhost:8080');
   process.env.AIM_SERVER_URL = 'http://127.0.0.1:9999';
-  assert.equal(resolveApiBase('https://aim.opena2a.org'), 'http://127.0.0.1:9999'); // env override
+  assert.equal(resolveApiBase('https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent'), 'http://127.0.0.1:9999'); // env override
   delete process.env.AIM_SERVER_URL;
 });
 

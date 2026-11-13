@@ -400,7 +400,7 @@ test('the Settings privacy panel states the telemetry default and its real opt-o
   assert.doesNotMatch(text, /offline by default/i);
   assert.doesNotMatch(text, /No network calls/i);
   assert.match(text, /telemetry is on by default/i);
-  for (const optOut of ['--offline', 'OPENA2A_TELEMETRY=off', 'dvaa telemetry off']) {
+  for (const optOut of ['--offline', 'DVAA_TELEMETRY=off', 'dvaa telemetry off']) {
     assert.ok(text.includes(optOut), `names the opt-out ${optOut}`);
   }
   assert.match(text, /memory only/i);

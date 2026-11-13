@@ -18,7 +18,7 @@ import { configureLLM, disableLLM, getLLMConfig } from '../llm/provider.js';
 import { getTutorGuidance, askTutor, resetSession } from '../llm/tutor.js';
 import { detectAttacks } from '../core/vulnerabilities.js';
 import { runScan } from './scanner.js';
-import * as tele from '@opena2a/telemetry';
+import * as tele from '../lib/telemetry.js';
 import { createActionTracker } from '../telemetry/actions.js';
 
 const SCORES_DIR = path.join(process.cwd(), '.dvaa');

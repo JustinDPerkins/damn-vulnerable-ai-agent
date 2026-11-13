@@ -44,11 +44,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
-    "@opena2a/aim-core": "0.2.0",
-    "@opena2a/cli-ui": "0.5.1",
-    "@opena2a/telemetry": "0.1.2",
-    "hackmyagent": "^0.33.2",
-    "openai": "^6.21.0"
+    "aim-core": "file:./vendor/aim-core",
+    "js-yaml": "^4.1.1",
+    "openai": "^6.21.0",
+    "tweetnacl": "^1.0.3"
   },
   "overrides": {
     "fast-uri": "^4.1.5"

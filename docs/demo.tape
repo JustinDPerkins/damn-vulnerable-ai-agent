@@ -16,7 +16,7 @@ Set PlaybackSpeed 1.0
 
 # Hidden setup
 Hide
-Type "cd ~/workspace/opena2a-org/damn-vulnerable-ai-agent && clear"
+Type "cd ~/workspace/JustinDPerkins/damn-vulnerable-ai-agent && clear"
 Enter
 Sleep 500ms
 Show

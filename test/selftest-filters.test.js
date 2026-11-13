@@ -20,7 +20,7 @@ const REPO = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CLI = path.join(REPO, 'src', 'index.js');
 const BROWSE = path.join(REPO, 'src', 'browse.js');
 
-const cliEnv = (extra = {}) => ({ PATH: process.env.PATH, HOME: os.tmpdir(), OPENA2A_TELEMETRY: 'off', ...extra });
+const cliEnv = (extra = {}) => ({ PATH: process.env.PATH, HOME: os.tmpdir(), DVAA_TELEMETRY: 'off', ...extra });
 const show = (r) => `exit=${r.status}\nstdout: ${r.stdout}\nstderr: ${r.stderr}`;
 
 test('the default roster is unchanged and its fields come from the registry', () => {

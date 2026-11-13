@@ -56,27 +56,27 @@ jobs:
           provenance: mode=max
           sbom: true
           tags: |
-            ghcr.io/opena2a-org/dvaa:latest
-            ghcr.io/opena2a-org/dvaa:${{ steps.meta.outputs.version }}
-            opena2a/dvaa:latest
-            opena2a/dvaa:${{ steps.meta.outputs.version }}
+            ghcr.io/JustinDPerkins/dvaa:latest
+            ghcr.io/JustinDPerkins/dvaa:${{ steps.meta.outputs.version }}
+            jayswakezone/dvaa:latest
+            jayswakezone/dvaa:${{ steps.meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           labels: |
             org.opencontainers.image.title=DVAA
             org.opencontainers.image.description=Damn Vulnerable AI Agent - Security testing platform
-            org.opencontainers.image.url=https://github.com/opena2a-org/damn-vulnerable-ai-agent
-            org.opencontainers.image.source=https://github.com/opena2a-org/damn-vulnerable-ai-agent
-            org.opencontainers.image.documentation=https://github.com/opena2a-org/damn-vulnerable-ai-agent#readme
+            org.opencontainers.image.url=https://github.com/JustinDPerkins/damn-vulnerable-ai-agent
+            org.opencontainers.image.source=https://github.com/JustinDPerkins/damn-vulnerable-ai-agent
+            org.opencontainers.image.documentation=https://github.com/JustinDPerkins/damn-vulnerable-ai-agent#readme
             org.opencontainers.image.version=${{ steps.meta.outputs.version }}
             org.opencontainers.image.licenses=Apache-2.0
-            org.opencontainers.image.vendor=OpenA2A
+            org.opencontainers.image.vendor=JaysWakeZone
 
       # Sigstore-signed provenance a leaked registry token cannot forge.
       - name: Attest build provenance
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
-          subject-name: ghcr.io/opena2a-org/dvaa
+          subject-name: ghcr.io/JustinDPerkins/dvaa
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
@@ -85,6 +85,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: opena2a/dvaa
+          repository: jayswakezone/dvaa
           readme-filepath: ./DOCKER_README.md
           short-description: "Damn Vulnerable AI Agent — intentionally vulnerable AI agents for security testing and red-teaming"

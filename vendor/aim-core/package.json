@@ -1,0 +1,41 @@
+{
+  "name": "aim-core",
+  "version": "0.2.0",
+  "description": "Agent identity library \u2014 Ed25519 identity, local audit log, capability policy, trust scoring. Vendored for the JaysWakeZone lab fork.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "identity",
+    "ed25519",
+    "security",
+    "aim"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

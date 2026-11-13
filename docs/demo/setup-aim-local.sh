@@ -6,13 +6,13 @@
 # What it does:
 #   1. Brings up the 4-service AIM docker-compose stack (postgres + redis +
 #      backend + frontend) in agent-identity-management/
-#   2. Seeds a local admin user (admin@opena2a.org / AIM2025!Secure)
-#   3. Generates DVAA's Ed25519 identity for ragbot-aim via @opena2a/aim-core
+#   2. Seeds a local admin user (admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent / AIM2025!Secure)
+#   3. Generates DVAA's Ed25519 identity for ragbot-aim via aim-core
 #   4. Registers the agent against the local AIM backend with that public key
 #   5. Prints the env vars to copy into `dvaa --api` so cloud reporting fires
 #
 # After this script, log into http://localhost:3000 as
-#   admin@opena2a.org / AIM2025!Secure
+#   admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent / AIM2025!Secure
 # and you'll see dvaa-ragbot-aim registered + the verification events that
 # land each time `dvaa demo aim-ab` runs.
 #
@@ -24,7 +24,7 @@ set -euo pipefail
 
 DVAA_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 AIM_ROOT="${AIM_ROOT:-$DVAA_ROOT/../agent-identity-management}"
-ADMIN_EMAIL="admin@opena2a.org"
+ADMIN_EMAIL="admin@github.com/JustinDPerkins/damn-vulnerable-ai-agent"
 ADMIN_PASSWORD="AIM2025!Secure"
 # bcrypt cost-12 hash of "AIM2025!Secure" (from agent-identity-management
 # migration 072 — the legacy DVAA-default-admin seed). Reused here so the
@@ -107,7 +107,7 @@ if [[ "$EXISTING" = "0" ]]; then
   aim_psql -v email="$ADMIN_EMAIL" -v pw_hash="$ADMIN_PW_HASH" >/dev/null 2>&1 <<'SQL'
 INSERT INTO users (organization_id, email, name, role, provider, provider_id, password_hash, status, email_verified, force_password_change)
 SELECT id, :'email', 'DVAA Local Admin', 'admin', 'local', :'email', :'pw_hash', 'active', TRUE, FALSE
-FROM organizations WHERE domain = 'admin.opena2a.org';
+FROM organizations WHERE domain = 'admin.github.com/JustinDPerkins/damn-vulnerable-ai-agent';
 SQL
   ok "admin user seeded ($ADMIN_EMAIL / $ADMIN_PASSWORD)"
 else
@@ -125,7 +125,7 @@ ok "JWT captured (${#JWT} chars)"
 step "Generate DVAA's Ed25519 identity for ragbot-aim (if missing)"
 ID_FILE="$DVAA_ROOT/.dvaa-aim/ragbot-aim/identity.json"
 PUBKEY=$(cd "$DVAA_ROOT" && node -e "
-import('@opena2a/aim-core').then(async (m) => {
+import('aim-core').then(async (m) => {
   const path = await import('path');
   const fs = await import('fs');
   const dataDir = path.join('$DVAA_ROOT', '.dvaa-aim', 'ragbot-aim');

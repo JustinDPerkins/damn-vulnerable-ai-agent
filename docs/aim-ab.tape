@@ -16,7 +16,7 @@ Set PlaybackSpeed 1.0
 
 # Hidden setup: alias dvaa to the local binary so the visible command is authentic.
 Hide
-Type "cd ~/workspace/opena2a-org/damn-vulnerable-ai-agent && alias dvaa='node src/index.js' && clear"
+Type "cd ~/workspace/JustinDPerkins/damn-vulnerable-ai-agent && alias dvaa='node src/index.js' && clear"
 Enter
 Sleep 500ms
 Show

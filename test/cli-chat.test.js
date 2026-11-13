@@ -230,7 +230,7 @@ test('MCP and A2A agents get a next step instead of a dead end', () => {
 async function isUp(url) {
   try { await fetch(url, { signal: AbortSignal.timeout(1500) }); return true; } catch { return false; }
 }
-const cliEnv = () => ({ PATH: process.env.PATH, HOME: os.tmpdir(), OPENA2A_TELEMETRY: 'off', NO_COLOR: '1' });
+const cliEnv = () => ({ PATH: process.env.PATH, HOME: os.tmpdir(), DVAA_TELEMETRY: 'off', NO_COLOR: '1' });
 
 test('live: input piped into `dvaa chat` gets a reply for every line', async (t) => {
   if (!(await isUp('http://localhost:7002/health'))) { t.skip('no fleet on :7002'); return; }

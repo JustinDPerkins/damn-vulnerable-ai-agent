@@ -108,7 +108,7 @@ function liveGet(targetUrl, redirectsLeft = MAX_REDIRECTS) {
     const lib = parsed.protocol === 'http:' ? http : https;
     const req = lib.get(parsed, {
       headers: {
-        'User-Agent': 'DVAA-ResearchBot/1.0 (+https://github.com/opena2a-org/damn-vulnerable-ai-agent)',
+        'User-Agent': 'DVAA-ResearchBot/1.0 (+https://github.com/JustinDPerkins/damn-vulnerable-ai-agent)',
         'Accept': 'text/html,*/*',
       },
       timeout: FETCH_TIMEOUT_MS,

@@ -1,6 +1,6 @@
 /**
  * Every HackMyAgent process the dashboard starts runs with
- * OPENA2A_TELEMETRY=off in its own environment.
+ * DVAA_TELEMETRY=off in its own environment.
  *
  * DVAA records a dashboard scan or fix as its own `lab-scan` or `lab-fix`
  * event. src/dashboard/scanner.js starts HackMyAgent to do that work (the
@@ -15,7 +15,7 @@
  * test/hackmyagent-telemetry-callers.test.js drives the dashboard server and
  * `dvaa scan` themselves.
  *
- * A stub binary records the OPENA2A_TELEMETRY value each invocation received.
+ * A stub binary records the DVAA_TELEMETRY value each invocation received.
  * Each case imports its own instance of scanner.js, so the in-memory check
  * registry starts empty, and gives the stub its own scratch directory, so the
  * on-disk cache starts empty too: every scan and fix case includes the
@@ -36,7 +36,7 @@ import { fileURLToPath } from 'node:url';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const NAME = 'llm-exposed-ollama';
 const EXPECTED = ['LLM-001'];
-const VAR = 'OPENA2A_TELEMETRY';
+const VAR = 'DVAA_TELEMETRY';
 const STUB_VERSION = '0.0.0';
 
 const PARENT_STATES = [
@@ -52,7 +52,7 @@ function freshScanner() {
   return import(`../src/dashboard/scanner.js?instance=${instances}`);
 }
 
-// Sets the parent's OPENA2A_TELEMETRY for one test (undefined = unset) and
+// Sets the parent's DVAA_TELEMETRY for one test (undefined = unset) and
 // restores the test command's own value afterwards.
 function setParentTelemetry(t, value) {
   const had = VAR in process.env;
@@ -75,7 +75,7 @@ function assertParentUnchanged(value) {
 
 // Stub layout mirrors a real install: <root>/node_modules/.bin/hackmyagent,
 // so scanner.js keeps the check cache at <root>/.hackmyagent-cache. Each
-// invocation appends its argv and the OPENA2A_TELEMETRY value it received
+// invocation appends its argv and the DVAA_TELEMETRY value it received
 // (null when unset) to calls.log, then answers like HackMyAgent.
 function makeStub(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dvaa-stub-hma-env-'));

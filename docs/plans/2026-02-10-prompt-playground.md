@@ -1252,7 +1252,7 @@ File: `public/playground.html`
   </main>
 
   <footer>
-    <p>DVAA - The AI agent you're supposed to break | <a href="https://github.com/opena2a-org/damn-vulnerable-ai-agent" target="_blank">GitHub</a></p>
+    <p>DVAA - The AI agent you're supposed to break | <a href="https://github.com/JustinDPerkins/damn-vulnerable-ai-agent" target="_blank">GitHub</a></p>
   </footer>
 
   <script type="module" src="/js/playground.js"></script>

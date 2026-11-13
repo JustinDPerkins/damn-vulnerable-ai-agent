@@ -11,7 +11,7 @@ const DASHBOARD_PORT = 9000;
 // Publishes the dashboard and every agent port, on loopback only. A bare
 // `docker run` publishes nothing, so the old hint reached no agent at all.
 export const DOCKER_RUN_HINT =
-  'docker run --rm -p 127.0.0.1:9000:9000 -p 127.0.0.1:7001-7023:7001-7023 opena2a/dvaa:latest';
+  'docker run --rm -p 127.0.0.1:9000:9000 -p 127.0.0.1:7001-7023:7001-7023 jayswakezone/dvaa:latest';
 
 export default async function run(argv) {
   const parsed = parseCommandArgs('health', argv, { json: { type: 'boolean' } }, { maxPositionals: 0 });

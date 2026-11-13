@@ -38,7 +38,7 @@ export function readLoginCredentials(credFile = CRED_FILE) {
     if (!accessToken) return null;
     return {
       accessToken,
-      aimUrl: (c.aimUrl || c.aim_url || 'https://aim.opena2a.org').replace(/\/$/, ''),
+      aimUrl: (c.aimUrl || c.aim_url || 'https://aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent').replace(/\/$/, ''),
       userEmail: c.userEmail || c.email || 'unknown',
     };
   } catch {
@@ -49,7 +49,7 @@ export function readLoginCredentials(credFile = CRED_FILE) {
 /**
  * Map the frontend URL the user logged into -> the API backend base URL.
  * Override with AIM_SERVER_URL. localhost dev backend is :8080; the hosted
- * frontend aim.opena2a.org is served by api.aim.opena2a.org.
+ * frontend aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent is served by api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent.
  */
 export function resolveApiBase(aimUrl) {
   if (process.env.AIM_SERVER_URL) return process.env.AIM_SERVER_URL.replace(/\/$/, '');
@@ -61,7 +61,7 @@ export function resolveApiBase(aimUrl) {
     if (u.hostname.startsWith('api.')) return `${u.protocol}//${u.host}`;
     return `${u.protocol}//api.${u.host}`;
   } catch {
-    return 'https://api.aim.opena2a.org';
+    return 'https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent';
   }
 }
 

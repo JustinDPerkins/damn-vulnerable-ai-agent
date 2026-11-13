@@ -2,18 +2,18 @@
 
 [![Status: reference-only](https://img.shields.io/badge/status-reference--only-blue)](STATUS.md)
 [![npm version](https://img.shields.io/npm/v/damn-vulnerable-ai-agent.svg)](https://www.npmjs.com/package/damn-vulnerable-ai-agent)
-[![Docker](https://img.shields.io/docker/pulls/opena2a/dvaa?label=docker%20pulls)](https://hub.docker.com/r/opena2a/dvaa)
-[![CI](https://github.com/opena2a-org/damn-vulnerable-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/opena2a-org/damn-vulnerable-ai-agent/actions/workflows/ci.yml)
+[![Docker](https://img.shields.io/docker/pulls/jayswakezone/dvaa?label=docker%20pulls)](https://hub.docker.com/r/jayswakezone/dvaa)
+[![CI](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-> **[OpenA2A](https://github.com/opena2a-org)**: [CLI](https://github.com/opena2a-org/opena2a) · [HackMyAgent](https://github.com/opena2a-org/hackmyagent) · [Secretless](https://github.com/opena2a-org/secretless-ai) · [AIM](https://github.com/opena2a-org/agent-identity-management) · [Browser Guard](https://github.com/opena2a-org/ai-browserguard) · **DVAA**
+> **[JaysWakeZone](https://github.com/JustinDPerkins)**: [CLI](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent) · [HackMyAgent](https://github.com/JustinDPerkins/hackmyagent) · [Secretless](https://github.com/JustinDPerkins/secretless-ai) · [AIM](https://github.com/JustinDPerkins/agent-identity-management) · [Browser Guard](https://github.com/JustinDPerkins/ai-browserguard) · **DVAA**
 
-[Website](https://opena2a.org/dvaa) · [Discord](https://discord.gg/uRZa3KXgEn)
+[Website](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/dvaa) · [Discord](https://discord.gg/uRZa3KXgEn)
 
 An intentionally vulnerable AI agent platform for security training, red-teaming, and validating security tools. 21 agents, 12 vulnerability categories, 3 protocols. The [DVWA](https://dvwa.co.uk/) of AI agents.
 
 ```bash
-docker run -p 127.0.0.1:9000:9000 -p 127.0.0.1:7001-7021:7001-7021 opena2a/dvaa:0.9.2
+docker run -p 127.0.0.1:9000:9000 -p 127.0.0.1:7001-7021:7001-7021 jayswakezone/dvaa:0.9.2
 open http://localhost:9000
 ```
 
@@ -80,20 +80,20 @@ Based on [OASB-1](https://oasb.ai) (Open Agent Security Benchmark):
 
 ## From attack to defense
 
-DVAA shows you how agents break. Each attack class maps to an OpenA2A control that stops it in your own agents. Every command below is real and runnable: break it here, then defend it for real.
+DVAA shows you how agents break. Each attack class maps to an JaysWakeZone control that stops it in your own agents. Every command below is real and runnable: break it here, then defend it for real.
 
-| Attack you just ran | OpenA2A control | Get started |
+| Attack you just ran | JaysWakeZone control | Get started |
 |---------------------|-----------------|-------------|
-| Prompt injection, jailbreak, context manipulation/overflow, MCP exploitation, tool poisoning/MITM | **[HackMyAgent](https://github.com/opena2a-org/hackmyagent)**: scan an agent setup and harden it | `npx hackmyagent secure` |
-| Capability abuse, outbound data exfiltration, A2A trust abuse | **[AIM](https://github.com/opena2a-org/agent-identity-management)**: cryptographic identity + capability grants enforced at the tool-call boundary | `dvaa demo aim-ab` ([see below](#aim-protected-agent)) |
-| Credential and secret leaks | **[Secretless](https://github.com/opena2a-org/secretless-ai)**: keep secrets out of agent and LLM context | `npx secretless-ai init` |
-| Browser-session agent takeover | **[BrowserGuard](https://github.com/opena2a-org/ai-browserguard)**: block agent takeover inside the browser | [Install from Chrome Web Store](https://chromewebstore.google.com/detail/ojphpdmabflmcjhglfogmkdgchkncikf) |
+| Prompt injection, jailbreak, context manipulation/overflow, MCP exploitation, tool poisoning/MITM | **[HackMyAgent](https://github.com/JustinDPerkins/hackmyagent)**: scan an agent setup and harden it | `npx hackmyagent secure` |
+| Capability abuse, outbound data exfiltration, A2A trust abuse | **[AIM](https://github.com/JustinDPerkins/agent-identity-management)**: cryptographic identity + capability grants enforced at the tool-call boundary | `dvaa demo aim-ab` ([see below](#aim-protected-agent)) |
+| Credential and secret leaks | **[Secretless](https://github.com/JustinDPerkins/secretless-ai)**: keep secrets out of agent and LLM context | `npx secretless-ai init` |
+| Browser-session agent takeover | **[BrowserGuard](https://github.com/JustinDPerkins/ai-browserguard)**: block agent takeover inside the browser | [Install from Chrome Web Store](https://chromewebstore.google.com/detail/ojphpdmabflmcjhglfogmkdgchkncikf) |
 
 The RAGBot-AIM A/B below is the shortest end-to-end proof: same agent code, the same injection landing on both, AIM denying the outbound action on the protected one.
 
 ## Testing with HackMyAgent
 
-DVAA is the primary target for [HackMyAgent](https://github.com/opena2a-org/hackmyagent) adversarial testing. The dev workflow loop: **spin up → attack → scan with HMA → fix → re-scan.**
+DVAA is the primary target for [HackMyAgent](https://github.com/JustinDPerkins/hackmyagent) adversarial testing. The dev workflow loop: **spin up → attack → scan with HMA → fix → re-scan.**
 
 ```bash
 # Attack a specific agent
@@ -215,7 +215,7 @@ The bundled payloads mirror AgentPwn's library: the same attacks these lab agent
 
 ## AIM-Protected Agent
 
-The AIM-protected agent, **RAGBot-AIM** (port 7014), runs the same code as RAGBot. The only difference is a capability grant of `rag:read` and `chat:respond`, enforced by [`@opena2a/aim-core`](https://www.npmjs.com/package/@opena2a/aim-core) at the tool-call boundary. No server, no API key, no network. Identity, audit log, capability policy, and trust score all live on disk under `.dvaa-aim/ragbot-aim/`.
+The AIM-protected agent, **RAGBot-AIM** (port 7014), runs the same code as RAGBot. The only difference is a capability grant of `rag:read` and `chat:respond`, enforced by [`aim-core`](https://www.npmjs.com/package/aim-core) at the tool-call boundary. No server, no API key, no network. Identity, audit log, capability policy, and trust score all live on disk under `.dvaa-aim/ragbot-aim/`.
 
 ![RAGBot-AIM A/B demo: same code, AIM denies the outbound exfil on the protected agent](docs/aim-ab-demo.gif)
 
@@ -318,19 +318,19 @@ The dashboard at `http://localhost:9000` tracks challenge progress, shows live a
 
 ```bash
 # Docker Compose (with simulated LLM backend, zero external dependencies)
-git clone https://github.com/opena2a-org/damn-vulnerable-ai-agent.git
+git clone https://github.com/JustinDPerkins/damn-vulnerable-ai-agent.git
 cd damn-vulnerable-ai-agent
 docker compose up        # publishes every port on 127.0.0.1 only
 open http://localhost:9000
 
 # Node.js (without Docker)
-git clone https://github.com/opena2a-org/damn-vulnerable-ai-agent.git
+git clone https://github.com/JustinDPerkins/damn-vulnerable-ai-agent.git
 cd damn-vulnerable-ai-agent
 npm install && npm start
 
-# OpenA2A CLI (manages Docker lifecycle automatically)
-opena2a train start    # Pull image, map ports, start DVAA
-opena2a train stop     # Stop and clean up
+# JaysWakeZone CLI (manages Docker lifecycle automatically)
+dvaa lab start    # Pull image, map ports, start DVAA
+dvaa lab stop     # Stop and clean up
 ```
 
 ## Protocols
@@ -367,7 +367,7 @@ HOST_PORT_OFFSET=500    # Add this offset to every agent port the dashboard disp
 docker run -d -e HOST_PORT_OFFSET=500 \
   -p 127.0.0.1:9000:9000 \
   -p 127.0.0.1:7501-7521:7001-7021 \
-  opena2a/dvaa:0.9.2
+  jayswakezone/dvaa:0.9.2
 ```
 
 `HOST_PORT_OFFSET` only affects what the dashboard **displays** (e.g. test commands, agent URLs). The container still binds internally to its agent ports (`7001-7021` on 0.9.2). You are responsible for the matching `-p` mappings. A naive `-p 127.0.0.1:8001:7001` without the env var means the dashboard will keep telling users to hit `7001` when the agent is actually on `8001`.
@@ -398,24 +398,24 @@ These scenarios demonstrate real-world kill chains combining multiple ATM techni
 
 ## Telemetry
 
-DVAA sends usage events to the OpenA2A Registry and reads nothing from it; nothing comes back to the tool.
+DVAA sends usage events to the JaysWakeZone Registry and reads nothing from it; nothing comes back to the tool.
 
-- **Sent**, to the OpenA2A Registry (`api.oa2a.org`):
-  - One `command` event per run of a CLI subcommand (`agents`, `health`, `attack`, `logs`, `scan`, `benchmark`, `hma`, `chat`) that returns an exit code, a non-zero one included, such as `dvaa health` exiting 1 when no dashboard is running. A run that ends before its subcommand returns sends nothing: one that throws, and one that exits at once on an error, such as `dvaa logs` with no dashboard running, `dvaa chat` with no agent running or `dvaa scan` with a scenario that does not exist. `dvaa telemetry`, `dvaa selftest`, `dvaa --help` and `dvaa --version` send nothing. `dvaa demo` turns telemetry off for its own run unless `OPENA2A_TELEMETRY` is already set; when it is set and on, `demo` reports like the other subcommands, and the scoped server that `demo flight` or `demo repo` starts always runs with telemetry off, so it sends no `start` event.
+- **Sent**, to the JaysWakeZone Registry (`api.oa2a.org`):
+  - One `command` event per run of a CLI subcommand (`agents`, `health`, `attack`, `logs`, `scan`, `benchmark`, `hma`, `chat`) that returns an exit code, a non-zero one included, such as `dvaa health` exiting 1 when no dashboard is running. A run that ends before its subcommand returns sends nothing: one that throws, and one that exits at once on an error, such as `dvaa logs` with no dashboard running, `dvaa chat` with no agent running or `dvaa scan` with a scenario that does not exist. `dvaa telemetry`, `dvaa selftest`, `dvaa --help` and `dvaa --version` send nothing. `dvaa demo` turns telemetry off for its own run unless `DVAA_TELEMETRY` is already set; when it is set and on, `demo` reports like the other subcommands, and the scoped server that `demo flight` or `demo repo` starts always runs with telemetry off, so it sends no `start` event.
   - One `start` event each time the server starts, in every mode: `dvaa` with no subcommand, `--all`, `--api`, `--mcp`, `--a2a`, and `--only`, which runs no dashboard.
   - From the release after 0.9.2, and in a clone of main: from the dashboard, at most one `command` event per UTC day for each of seven actions: `lab-chat` (a message to an agent), `lab-challenge-verify`, `lab-scan`, `lab-fix`, `lab-tutor-ask`, `lab-llm-configure` and `lab-reset`. The count starts over when the server restarts. Other requests, including page loads, `/stats` and `/health`, send nothing.
   - The bundled HackMyAgent's own events, under tool name `hackmyagent` and the same install ID, each time DVAA runs it: `dvaa scan`, `dvaa attack`, `dvaa benchmark` and `dvaa hma`. The opt-outs below silence these too.
 
-DVAA sends usage data to the OpenA2A Registry: tool name (`dvaa`), version, command name (`scan`, `attack`, etc.), success, duration, platform, Node major version, and a persistent `install_id`. Each event carries an install ID that identifies the machine, so the data is personal data; https://opena2a.org/privacy explains how the ID is made. **No content is collected:** no scanned files, no attack payloads, no prompts, no responses, no env vars, no IPs (the Registry derives country code from the inbound `CF-IPCountry` header at ingest and discards the IP).
+DVAA sends usage data to the JaysWakeZone Registry: tool name (`dvaa`), version, command name (`scan`, `attack`, etc.), success, duration, platform, Node major version, and a persistent `install_id`. Each event carries an install ID that identifies the machine, so the data is personal data; https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/privacy explains how the ID is made. **No content is collected:** no scanned files, no attack payloads, no prompts, no responses, no env vars, no IPs (the Registry derives country code from the inbound `CF-IPCountry` header at ingest and discards the IP).
 
 Disclosure surfaces and opt-out:
 
-- **Policy page:** [opena2a.org/telemetry](https://opena2a.org/telemetry) covers the full schema, retention, and how to ask for deletion of your install ID's events.
+- **Policy page:** [github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry) covers the full schema, retention, and how to ask for deletion of your install ID's events.
 - **`dvaa --version`** shows current state and the one-line opt-out hint.
 - **`dvaa telemetry status`** prints state, install_id, config path, policy URL.
-- **Disable per-invocation:** `OPENA2A_TELEMETRY=off dvaa <anything>` (also accepts `0`, `false`, `no`).
-- **Disable persistently:** `dvaa telemetry off` (writes to `~/.config/opena2a/telemetry.json`).
-- **Audit every payload:** `OPENA2A_TELEMETRY_DEBUG=print dvaa <anything>` echoes each event to stderr in JSON before sending.
+- **Disable per-invocation:** `DVAA_TELEMETRY=off dvaa <anything>` (also accepts `0`, `false`, `no`).
+- **Disable persistently:** `dvaa telemetry off` (writes to `~/.config/dvaa/telemetry.json`).
+- **Audit every payload:** `DVAA_TELEMETRY_DEBUG=print dvaa <anything>` echoes each event to stderr in JSON before sending.
 
 Telemetry is fire-and-forget with a 2-second timeout; network failures never block DVAA.
 
@@ -444,4 +444,4 @@ DVAA is provided for educational purposes. The authors are not responsible for m
 
 ---
 
-Part of the [OpenA2A](https://opena2a.org) ecosystem. See also: [HackMyAgent](https://github.com/opena2a-org/hackmyagent), [Secretless AI](https://github.com/opena2a-org/secretless-ai), [AIM](https://github.com/opena2a-org/agent-identity-management), [AI Browser Guard](https://github.com/opena2a-org/AI-BrowserGuard).
+Part of the [JaysWakeZone](https://github.com/JustinDPerkins/damn-vulnerable-ai-agent) ecosystem. See also: [HackMyAgent](https://github.com/JustinDPerkins/hackmyagent), [Secretless AI](https://github.com/JustinDPerkins/secretless-ai), [AIM](https://github.com/JustinDPerkins/agent-identity-management), [AI Browser Guard](https://github.com/JustinDPerkins/AI-BrowserGuard).

@@ -5,8 +5,8 @@
  * for the dvaa CLI. Status is the default action.
  */
 
-import * as tele from "@opena2a/telemetry";
-import { runTelemetryCommand } from "@opena2a/cli-ui";
+import * as tele from "../../lib/telemetry.js";
+import { runTelemetryCommand } from "../../lib/cli-ui.js";
 
 // The actions runTelemetryCommand understands; undefined is the default (status).
 const ACTIONS = new Set([undefined, "on", "off", "status", "--help", "-h"]);

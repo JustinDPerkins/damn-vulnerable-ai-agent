@@ -151,5 +151,5 @@ Agents:
   A2A (Agent-to-Agent)     ${names('a2a')}
 
 Dashboard:  http://localhost:9000
-Docs:       https://github.com/opena2a-org/damn-vulnerable-ai-agent`;
+Docs:       https://github.com/JustinDPerkins/damn-vulnerable-ai-agent`;
 }

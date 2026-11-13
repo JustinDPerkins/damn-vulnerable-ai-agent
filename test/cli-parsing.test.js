@@ -28,7 +28,7 @@ process.on('exit', () => fs.rmSync(SANDBOX, { recursive: true, force: true }));
 function cliEnv(extra = {}) {
   const env = {};
   for (const k of ['PATH', 'TMPDIR', 'LANG', 'SystemRoot']) if (process.env[k] !== undefined) env[k] = process.env[k];
-  return { ...env, HOME: SANDBOX, XDG_CONFIG_HOME: SANDBOX, OPENA2A_TELEMETRY: 'off', NO_COLOR: '1', ...extra };
+  return { ...env, HOME: SANDBOX, XDG_CONFIG_HOME: SANDBOX, DVAA_TELEMETRY: 'off', NO_COLOR: '1', ...extra };
 }
 
 function dvaa(args, { env, input } = {}) {
@@ -223,7 +223,7 @@ test('the health hint publishes every port, on loopback', () => {
   const r = dvaa(['health']);
   if (r.status === 0) return; // a dashboard is up on :9000; the hint is not printed
   assert.equal(r.status, 1, show(r));
-  assert.match(r.stderr, /docker run --rm -p 127\.0\.0\.1:9000:9000 -p 127\.0\.0\.1:7001-7023:7001-7023 opena2a\/dvaa:latest/, show(r));
+  assert.match(r.stderr, /docker run --rm -p 127\.0\.0\.1:9000:9000 -p 127\.0\.0\.1:7001-7023:7001-7023 jwz\/dvaa:latest/, show(r));
   assert.doesNotMatch(r.stderr, /0\.8\.0/, show(r));
 });
 

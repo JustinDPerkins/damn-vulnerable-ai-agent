@@ -249,7 +249,7 @@ async function ensureFleet(dataDir, sandboxHome) {
     // to the real $HOME.
     DVAA_REPO_SANDBOX_HOME: sandboxHome,
     DVAA_RESEARCH_CACHE: 'off',
-    OPENA2A_TELEMETRY: 'off',
+    DVAA_TELEMETRY: 'off',
   });
   // Scoped fleet: exactly the two agents this demo drives, and no dashboard, so
   // the demo runs beside an existing fleet (developer, docker-compose) instead

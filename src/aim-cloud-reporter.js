@@ -1,5 +1,5 @@
 /**
- * Cloud-mode reporter for the AIM dashboard at api.aim.opena2a.org.
+ * Cloud-mode reporter for the AIM dashboard at api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent.
  *
  * Local-first enforcement via aim-core remains authoritative. This module
  * is purely additive: when the cloud env vars are set, every enforcement
@@ -7,7 +7,7 @@
  * the dashboard can show the registered agent + audit events + trust score.
  *
  * Activation gates (ALL three required to enable cloud reporting):
- *   - process.env.AIM_SERVER_URL (e.g. https://api.aim.opena2a.org)
+ *   - process.env.AIM_SERVER_URL (e.g. https://api.aim.github.com/JustinDPerkins/damn-vulnerable-ai-agent)
  *   - process.env.AIM_API_KEY (any aim_live_/aim_test_ key, used as X-API-Key)
  *   - at least one cloud agent id (UUID returned by the dashboard when an
  *     agent was registered with this DVAA install's public key for it)

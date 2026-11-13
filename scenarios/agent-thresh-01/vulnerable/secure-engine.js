@@ -6,7 +6,7 @@
  * contrast the two files, and so docs can point reviewers at a concrete
  * reference implementation.
  *
- * Rules (OPENA2A-IB-007 + OASB-SEC-021):
+ * Rules (LAB-IB-007 + OASB-SEC-021):
  *
  *   CR-001 (Parse-to-Deny): every parse failure, threshold exceedance,
  *     or unresolvable input produces DENY. No ASK_USER. No fallback.

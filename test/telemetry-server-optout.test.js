@@ -6,7 +6,7 @@
  * real thing honours the opt-out — and the server path is new ground for
  * telemetry, so "the existing opt-outs still work" is a claim that needs
  * proving rather than asserting. This boots the real dashboard with the real
- * @opena2a/telemetry against a mock endpoint and counts posts.
+ * ./src/lib/telemetry.js against a mock endpoint and counts posts.
  *
  * Mirrors telemetry-offline.test.js, which does the same for the CLI path.
  */
@@ -49,15 +49,15 @@ function runServerCase({ env = {}, method = 'POST', route = '/api/agents/x/chat'
       // touched and the run can't inherit a persisted opt-out.
       const home = mkdtempSync(path.join(tmpdir(), 'dvaa-telem-'));
       const childEnv = { ...process.env };
-      delete childEnv.OPENA2A_TELEMETRY;
-      delete childEnv.OPENA2A_TELEMETRY_DEBUG;
+      delete childEnv.DVAA_TELEMETRY;
+      delete childEnv.DVAA_TELEMETRY_DEBUG;
 
       const child = spawn(process.execPath, [HARNESS, method, route], {
         env: {
           ...childEnv,
           HOME: home,
           XDG_CONFIG_HOME: home,
-          OPENA2A_TELEMETRY_URL: `http://127.0.0.1:${telemetryPort}/ev`,
+          DVAA_TELEMETRY_URL: `http://127.0.0.1:${telemetryPort}/ev`,
           ...env,
         },
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -85,8 +85,8 @@ test('control: a lab action on the server path posts telemetry (harness sanity)'
   assert.ok(hits >= 1, `expected a telemetry post, got ${hits}. Output: ${out}`);
 });
 
-test('OPENA2A_TELEMETRY=off suppresses the server path entirely', async () => {
-  const { hits, code, out } = await runServerCase({ env: { OPENA2A_TELEMETRY: 'off' } });
+test('DVAA_TELEMETRY=off suppresses the server path entirely', async () => {
+  const { hits, code, out } = await runServerCase({ env: { DVAA_TELEMETRY: 'off' } });
   assert.equal(code, 0, `harness failed: ${out}`);
   assert.equal(hits, 0, `opted-out server posted ${hits} time(s)`);
 });

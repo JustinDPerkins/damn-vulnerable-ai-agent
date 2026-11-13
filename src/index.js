@@ -10,8 +10,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { AsyncLocalStorage } from 'async_hooks';
-import * as tele from '@opena2a/telemetry';
-import { versionLine } from '@opena2a/cli-ui';
+import * as tele from './lib/telemetry.js';
+import { versionLine } from './lib/cli-ui.js';
 import { getAllAgents, getAgentsByProtocol } from './core/agents.js';
 import { detectAttacks, SENSITIVE_DATA, SECURITY_LEVELS } from './core/vulnerabilities.js';
 import { createDashboardServer } from './dashboard/server.js';
@@ -44,20 +44,20 @@ const PKG_VERSION = (() => {
 
 // Tier-1 anonymous usage telemetry. Default ON; opt-out via env or
 // `dvaa telemetry off`. Disclosure surfaces: README §Telemetry,
-// `dvaa --version` line, `dvaa telemetry status`, opena2a.org/telemetry.
+// `dvaa --version` line, `dvaa telemetry status`, github.com/JustinDPerkins/damn-vulnerable-ai-agent/telemetry.
 // Disable anonymous telemetry BEFORE tele.init() - init() snapshots the opt-out
-// config (which reads OPENA2A_TELEMETRY) exactly once, right here. Setting the
+// config (which reads DVAA_TELEMETRY) exactly once, right here. Setting the
 // env later (from the --offline flag parsed below, or inside the demo command)
 // is too late: the snapshot is already taken and start()/track() use it.
 //   - --offline (server airplane mode) always wins.
 //   - `demo` is offline-by-default - the A/B demo's contract is "no cloud in
-//     the path" - unless the operator explicitly set OPENA2A_TELEMETRY.
+//     the path" - unless the operator explicitly set DVAA_TELEMETRY.
 {
   const preInitArgs = process.argv.slice(2);
   if (preInitArgs.includes('--offline')) {
-    process.env.OPENA2A_TELEMETRY = 'off';
-  } else if (preInitArgs[0] === 'demo' && process.env.OPENA2A_TELEMETRY === undefined) {
-    process.env.OPENA2A_TELEMETRY = 'off';
+    process.env.DVAA_TELEMETRY = 'off';
+  } else if (preInitArgs[0] === 'demo' && process.env.DVAA_TELEMETRY === undefined) {
+    process.env.DVAA_TELEMETRY = 'off';
   }
 }
 
@@ -115,7 +115,7 @@ if (plan.kind === 'help') {
 }
 
 // Handle --version - uses the shared versionLine helper so the telemetry
-// disclosure line is consistent across every opena2a-org CLI.
+// disclosure line is consistent across every JustinDPerkins CLI.
 if (plan.kind === 'version') {
   console.log(versionLine({ tool: 'dvaa', version: PKG_VERSION, telemetry: tele.status() }));
   process.exit(0);

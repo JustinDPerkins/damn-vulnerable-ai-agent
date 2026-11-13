@@ -16,7 +16,7 @@
  *
  * This fixes the COMMAND half only, and that is worth being precise about.
  * install_id still churns across container recreation (no volume for
- * /home/node/.config/opena2a), so a user who runs `docker run` on Monday and
+ * /home/node/.config/dvaa), so a user who runs `docker run` on Monday and
  * again on Tuesday is two install_ids of one day each and STILL is not engaged.
  * After this change, engaged becomes reachable for someone who keeps a single
  * container alive across >= 2 UTC days (compose's `restart: unless-stopped`) and
