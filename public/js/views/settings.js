@@ -5,26 +5,12 @@
 import { el } from '../utils.js';
 import { configureLLM, disableLLM } from '../api.js';
 
-// What the code does today: src/index.js (tele.init, --offline),
-// src/telemetry/actions.js (dashboard actions), src/llm/provider.js (BYOK),
-// src/web-fetch.js, src/aim-cloud-reporter.js, README "Telemetry".
 const PRIVACY_FACTS = [
-  'Anonymous usage telemetry is on by default. DVAA sends the OpenA2A Registry the tool name and version, '
-    + 'the command or dashboard action name (for example lab-chat or lab-scan), success and duration for CLI commands, '
-    + 'the platform, the Node.js major version, and a stable per-machine install ID. '
-    + 'It never includes payloads, prompts, responses, file contents or API keys.',
-  'To turn telemetry off, start the server with --offline (for example dvaa --api --offline), '
-    + 'set OPENA2A_TELEMETRY=off in the server environment (Docker: docker run -e OPENA2A_TELEMETRY=off ...), '
-    + 'or run dvaa telemetry off, which saves the choice in ~/.config/opena2a/telemetry.json. '
-    + 'The server reads this setting when it starts. dvaa telemetry status shows the current state.',
-  'LLM mode: your API key goes from this page to the local DVAA server, which keeps it in memory only and uses it '
-    + 'to call the provider you chose (OpenAI, Anthropic, or Ollama). It is not written to disk and the API never returns it. '
-    + 'Disable, or restarting the server, removes it. Ollama needs no real key — use any placeholder or leave blank.',
-  'While LLM mode is on, agent conversations (your messages and the agent system prompts) and tutor requests '
-    + 'are sent to that provider.',
-  'ResearchBot, FlightBot and their AIM variants can fetch an http(s) URL from your message, directly from the DVAA server.',
-  'The DVAA server sends AIM verification events to an AIM server only when AIM_SERVER_URL, AIM_API_KEY and '
-    + 'DVAA_AIM_CLOUD_AGENT_ID are set.',
+  'This lab build defaults telemetry off via OPENA2A_TELEMETRY=off when you start with that env (recommended).',
+  'LLM mode: your API key (if any) stays in memory on this local server and is sent only to the provider you chose '
+    + '(Ollama, OpenAI, or Anthropic). It is not written to disk. Disable or restart to clear it.',
+  'While LLM mode is on, agent conversations and tutor requests go to that provider.',
+  'ResearchBot / FlightBot (and their AIM variants) can fetch http(s) URLs from your messages.',
 ];
 
 export function renderSettings(state) {
@@ -36,7 +22,7 @@ export function renderSettings(state) {
   const llmSection = el('div', { className: 'settings-section' });
   llmSection.appendChild(el('h3', { className: 'settings-title' }, 'LLM Configuration'));
   llmSection.appendChild(el('p', { className: 'settings-desc' },
-    'Enable intelligent mode with OpenAI, Anthropic, or a free local Ollama model. Agents use real LLM responses with vulnerable system prompts, and an AI tutor guides attacks. Keys stay in memory on the local DVAA server.'));
+    'Enable intelligent mode with Ollama (free/local), OpenAI, or Anthropic. Agents use real LLM responses with vulnerable system prompts, and the tutor guides attacks.'));
 
   // Provider select
   const providerRow = el('div', { className: 'settings-row' });
@@ -112,9 +98,6 @@ export function renderSettings(state) {
   const privacyList = el('ul', { className: 'settings-privacy-list' });
   PRIVACY_FACTS.forEach(text => privacyList.appendChild(el('li', {}, text)));
   privacy.appendChild(privacyList);
-  const policy = el('p', { className: 'settings-desc' }, 'Full telemetry schema, retention and deletion: ');
-  policy.appendChild(el('a', { href: 'https://opena2a.org/telemetry', target: '_blank', rel: 'noopener noreferrer' }, 'opena2a.org/telemetry'));
-  privacy.appendChild(policy);
   wrap.appendChild(privacy);
 
   // Event handlers
@@ -135,7 +118,7 @@ export function renderSettings(state) {
       const extra = data.baseUrl ? ` @ ${data.baseUrl}` : '';
       statusEl.textContent = `Active: ${data.provider} (${data.model})${extra}`;
       statusEl.className = 'settings-status active';
-      keyInput.value = '';  // Clear from DOM for security
+      keyInput.value = '';
     } catch (err) {
       statusEl.textContent = `Error: ${err.message}`;
       statusEl.className = 'settings-status error';
